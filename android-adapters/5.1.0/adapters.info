@@ -1,0 +1,22 @@
+{
+   "adapters":[
+      {
+         "qualifiedName":"com.sponsorpay.sdk.mbe.mediation.ApplifierMediationAdapter",
+         "versions":[
+            "1.0.0"
+         ]
+      },
+      {
+         "qualifiedName":"com.sponsorpay.sdk.mbe.mediation.FlurryMediationAdapter",
+         "versions":[
+            "1.0.0"
+         ]
+      },
+      {
+         "qualifiedName":"com.sponsorpay.sdk.mbe.mediation.VungleMediationAdapter",
+         "versions":[
+            "1.0.0"
+         ]
+      }
+   ]
+}
