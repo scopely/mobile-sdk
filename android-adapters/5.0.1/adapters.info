@@ -15,7 +15,8 @@
       {
          "qualifiedName":"com.sponsorpay.sdk.mbe.mediation.VungleMediationAdapter",
          "versions":[
-            "1.0.0"
+            "1.0.0",
+            "1.0.1"
          ]
       }
    ]
