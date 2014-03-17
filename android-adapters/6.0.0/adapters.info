@@ -21,7 +21,8 @@
       {
          "qualifiedName":"com.sponsorpay.mediation.AppLiftMediationAdapter",
          "versions":[
-            "1.0.0"
+            "1.0.0",
+            "1.0.1"
          ]
       },
       {
