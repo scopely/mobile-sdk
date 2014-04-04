@@ -43,6 +43,12 @@
          "versions":[
             "1.0.0"
          ]
+      },
+      {
+         "qualifiedName":"com.sponsorpay.mediation.YuMeMediationAdapter",
+         "versions":[
+            "1.0.0"
+         ]
       }
    ]
 }
