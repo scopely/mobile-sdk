@@ -23,7 +23,12 @@
 @property (strong, nonatomic) ALSdk *appLovinSDKInstance;
 @property (copy) SPTPNVideoEventsHandlerBlock videoEventsCallback;
 
-@property (nonatomic, assign) BOOL videoAvailable;
+@property (assign, nonatomic) BOOL videoAvailable;
+
+@property (assign, nonatomic) BOOL rewardValidationSucceeded;
+@property (assign, nonatomic) BOOL wasUserRewarded;
+
+@property (assign, nonatomic) dispatch_once_t playDispatchOnceToken;
 
 @end
 
@@ -66,6 +71,9 @@
 {
     SPLogDebug(@"AppLovin ad Loaded");
     self.videoAvailable = YES;
+    self.rewardValidationSucceeded = NO;
+    self.wasUserRewarded = NO;
+    self.playDispatchOnceToken = 0;
     [self.delegate adapter:self didReportVideoAvailable:YES];
 }
 
@@ -79,7 +87,13 @@
 - (void)videoPlaybackBeganInAd:(ALAd *)ad
 {
     SPLogDebug(@"AppLovin video started playing");
-    [self.delegate adapterVideoDidStart:self];
+
+    // When the app resigns active and comes back from the background, this
+    // method will be called again. We want to send it just once.
+    dispatch_once(&_playDispatchOnceToken, ^{
+        [self.delegate adapterVideoDidStart:self];
+    });
+
     self.videoAvailable = NO;
 }
 
@@ -87,10 +101,12 @@
             atPlaybackPercent:(NSNumber *)percentPlayed
                  fullyWatched:(BOOL)wasFullyWatched
 {
-    // The validation of the reward is implemented in rewardValidationRequestForAd:didSucceedWithResponse:
     SPLogDebug(@"AppLovin video stopped playing at %@ and %@ fully watched", percentPlayed, wasFullyWatched? @"was": @"was not");
     if (!wasFullyWatched) {
         [self.delegate adapterVideoDidAbort:self];
+    } else if (self.rewardValidationSucceeded) {
+        self.wasUserRewarded = YES;
+        [self.delegate adapterVideoDidFinish:self];
     }
 }
 
@@ -107,7 +123,9 @@
 
 - (void)ad:(ALAd *)ad wasHiddenIn:(UIView *)view
 {
-    [self.delegate adapterVideoDidClose:self];
+    if (self.wasUserRewarded) {
+        [self.delegate adapterVideoDidClose:self];
+    }
 }
 
 #pragma mark - AppLovin reward delegate
@@ -119,23 +137,25 @@
 - (void)rewardValidationRequestForAd:(ALAd *)ad didSucceedWithResponse:(NSDictionary *)response
 {
     SPLogInfo(@"AppLovin reward successful");
-    [[NSNotificationCenter defaultCenter] postNotificationName:SPVideoHideRewardNotification object:nil];
-    [self.delegate adapterVideoDidFinish:self];
+    self.rewardValidationSucceeded = YES;
 }
 
 - (void)rewardValidationRequestForAd:(ALAd *)ad wasRejectedWithResponse:(NSDictionary *)response
 {
     SPLogError(@"AppLovin reward was rejected with data %@", response);
+    self.rewardValidationSucceeded = NO;
 }
 
 - (void)rewardValidationRequestForAd:(ALAd *)ad didExceedQuotaWithResponse:(NSDictionary *)response
 {
     SPLogError(@"AppLovin reward has exceeded quota %@", response);
+    self.rewardValidationSucceeded = NO;
 }
 
 - (void)rewardValidationRequestForAd:(ALAd *)ad didFailWithError:(NSInteger)responseCode
 {
     SPLogError(@"AppLovin reward failed with error %d", responseCode);
+    self.rewardValidationSucceeded = NO;
 }
 
 @end
