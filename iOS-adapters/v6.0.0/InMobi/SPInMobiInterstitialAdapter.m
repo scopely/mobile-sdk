@@ -21,6 +21,14 @@
 
 @property (assign, nonatomic) BOOL userClickedAd;
 
+
+// In cases when InMobi uses StoreKit, it uses the current interstitial as the delegate.
+// But to maximize the fill rate, we are requesting another interstitial when the current one
+// is dismissed, which causes the delegate of StoreKit to be niled and the user trapped.
+// This property will hold a reference to the last interstitial provided, since the API
+// does not provide any clue about what happening regarding StoreKit
+@property (strong, nonatomic) IMInterstitial *dismissedInterstitial;
+
 @end
 
 @implementation SPInMobiInterstitialAdapter
@@ -75,8 +83,12 @@
     self.interstitialAvailable = NO;
     ad.delegate = nil;
     self.interstitial = nil;
-    [self.delegate adapter:self didFailWithError:error];
-    SPLogError(@"%s %@", __PRETTY_FUNCTION__, [error localizedDescription]);
+    if (error.code == kIMErrorNoFill) {
+        SPLogInfo(@"%s %@", __PRETTY_FUNCTION__, [error localizedDescription]);
+    } else {
+        [self.delegate adapter:self didFailWithError:error];
+        SPLogError(@"%s %@", __PRETTY_FUNCTION__, [error localizedDescription]);
+    }
 }
 
 - (void)interstitialWillPresentScreen:(IMInterstitial *)ad
@@ -89,6 +101,7 @@
 {
     if (!self.userClickedAd) {
         [self.delegate adapter:self didDismissInterstitialWithReason:SPInterstitialDismissReasonUserClosedAd];
+        self.dismissedInterstitial = ad;
         [self fetchInterstitial];
     }
 }
