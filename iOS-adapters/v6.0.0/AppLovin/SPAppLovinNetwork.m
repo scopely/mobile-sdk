@@ -10,6 +10,7 @@
 #import "SPTPNGenericAdapter.h"
 #import "SPInterstitialNetworkAdapter.h"
 #import "SPRewardedVideoNetworkAdapter.h"
+#import "SPSystemVersionChecker.h"
 #import "SPLogger.h"
 #import "ALSdk.h"
 
@@ -58,6 +59,11 @@ static NSString *const SPRewardedVideoAdapterClassName = @"SPAppLovinRewardedVid
 
     if (!apiKey.length) {
         SPLogError(@"Could not start %@ Provider. %@ empty or missing.", self.name, SPAppLovinSDKKey);
+        return NO;
+    }
+
+    if (![SPSystemVersionChecker runningOniOS6OrNewer]) {
+        SPLogError(@"AppLovin only supports iOS 6 or later");
         return NO;
     }
 
