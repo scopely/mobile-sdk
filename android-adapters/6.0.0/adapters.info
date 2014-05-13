@@ -49,6 +49,12 @@
          "versions":[
             "1.0.0"
          ]
+      },
+      {
+         "qualifiedName":"com.sponsorpay.mediation.MillennialMediationAdapter",
+         "versions":[
+            "1.0.0"
+         ]
       }
    ]
 }
