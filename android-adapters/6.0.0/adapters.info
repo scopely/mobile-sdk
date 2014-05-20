@@ -55,6 +55,12 @@
          "versions":[
             "1.0.0"
          ]
+      },
+      {
+         "qualifiedName":"com.sponsorpay.mediation.AdMobMediationAdapter",
+         "versions":[
+            "1.0.0"
+         ]
       }
    ]
 }
