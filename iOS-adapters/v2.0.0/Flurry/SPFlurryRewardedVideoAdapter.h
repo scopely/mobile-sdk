@@ -12,7 +12,7 @@
 
 #import "FlurryAdDelegate.h"
 
-//#define FLURRY_TEST_ADS_ENABLED
+// #define FLURRY_TEST_ADS_ENABLED
 
 @class SPFlurryNetwork;
 

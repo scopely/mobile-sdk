@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 SponsorPay. All rights reserved.
 //
 
+#import "SponsorPaySDK.h"
+
 #import "SPFlurryNetwork.h"
 #import "SPFlurryRewardedVideoAdapter.h"
 #import "SPLogger.h"
@@ -60,6 +62,7 @@ static const NSInteger SPFlurryVersionPatch = 0;
         return NO;
     }
     [Flurry startSession:apiKey];
+    [Flurry addOrigin:@"SponsorPayIOS" withVersion:[SponsorPaySDK versionString]];
 
     return YES;
 }
