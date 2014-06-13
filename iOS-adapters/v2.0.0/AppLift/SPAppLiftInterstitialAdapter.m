@@ -53,7 +53,7 @@
 {
     LogInvocation;
     if (!_adLoaded) {
-        [PlayAdsSDK prepareInterstitialWithDelegate:self];
+        [PlayAdsSDK cache];
     }
 
     return _adLoaded;
@@ -62,30 +62,19 @@
 - (void)showInterstitialFromViewController:(UIViewController *)viewController
 {
     LogInvocation;
-    [PlayAdsSDK showPreparedInterstitial];
+    [PlayAdsSDK show];
 }
 
 #pragma mark - AppLift delegate methods
 - (void)playAdsStartDidEnd
 {
-    [PlayAdsSDK prepareInterstitialWithDelegate:self];
+    [PlayAdsSDK cache];
 }
 
 - (void)playAdsInterstitialReady
 {
     LogInvocation;
-    // The AppLift interstitial AppLiftLightViewController is not supported in the iPad when used in landscape mode. Since we can't
-    // garantee that the user won't change the orientation between -[SPAppLiftInterstitialAdapter canShowInterstitial] and
-    // -[SPAppLiftInterstitialAdapter showInterstitialFromViewController:], we'll disable this interstitial for the iPad.
-    UIViewController *currentInterstitial = [PlayAdsSDK currentInterstitial];
-    NSString *interstitialClassName = NSStringFromClass([currentInterstitial class]);
-    if ([interstitialClassName isEqualToString:@"AppLiftLightViewController"] && UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
-    {
-        SPLogWarn(@"Discarding interstitial - AppLiftLightViewController is not supported. Fetching again");
-        [PlayAdsSDK prepareInterstitialWithDelegate:self];
-    } else {
-        _adLoaded = YES;
-    }
+    _adLoaded = YES;
 }
 
 - (void)playAdsInterstitialDidShown
@@ -105,7 +94,7 @@
 {
     LogInvocation;
     [self.delegate adapter:self didDismissInterstitialWithReason:SPInterstitialDismissReasonUserClosedAd];
-    [PlayAdsSDK prepareInterstitialWithDelegate:self];
+    [PlayAdsSDK cache];
 }
 
 @end

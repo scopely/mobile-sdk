@@ -1,6 +1,6 @@
 //
 //  SPAppLiftProvider.m
-//  SponsorPay iOS SDK - AppLift Adapter v.2.0.0
+//  SponsorPay iOS SDK - AppLift Adapter v.2.1.0
 //
 //  Created by Daniel Barden on 14/01/14.
 //  Copyright (c) 2014 SponsorPay. All rights reserved.
@@ -18,28 +18,47 @@ static NSString *const SPAppLiftSecretToken = @"SPAppLiftSecretToken";
 
 // Adapter versioning - Remember to update the header
 static const NSInteger SPAppLiftVersionMajor = 2;
-static const NSInteger SPAppLiftVersionMinor = 0;
+static const NSInteger SPAppLiftVersionMinor = 1;
 static const NSInteger SPAppLiftVersionPatch = 0;
+
+
+
+#pragma mark  
 
 @interface SPAppLiftNetwork()
 
-@property (nonatomic, strong) SPAppLiftInterstitialAdapter *interstitialAdapter;
+@property ( nonatomic, strong, readonly ) SPAppLiftInterstitialAdapter *interstitialAdapter;
 
 @end
 
-@implementation SPAppLiftNetwork
 
-@synthesize interstitialAdapter;
+
+#pragma mark  
+
+@implementation SPAppLiftNetwork
+{
+@private
+
+	SPAppLiftInterstitialAdapter *interstitialAdapter;
+    
+}
+
+#pragma mark  
+#pragma mark Private Properties -
+
+@synthesize interstitialAdapter = interstitialAdapter;
 
 + (SPSemanticVersion *)adapterVersion
 {
     return [SPSemanticVersion versionWithMajor:SPAppLiftVersionMajor minor:SPAppLiftVersionMinor patch:SPAppLiftVersionPatch];
 }
 
+#pragma mark  
+
 - (instancetype)init{
     self = [super init];
     if (self) {
-        self.interstitialAdapter = [[SPAppLiftInterstitialAdapter alloc] init];
+        self->interstitialAdapter = [[SPAppLiftInterstitialAdapter alloc] init];
     }
     return self;
 }
@@ -53,9 +72,31 @@ static const NSInteger SPAppLiftVersionPatch = 0;
         SPLogError(@"Could not start %@ Provider. %@ or %@ empty or missing.", self.name, SPAppLiftAppId, SPAppLiftSecretToken);
         return NO;
     }
-    [PlayAdsSDK startPlayAdsSDKForApp:appId secretToken:secretToken];
+    
+    NSAssert(
+    	[self.interstitialAdapter isKindOfClass:
+            [SPAppLiftInterstitialAdapter class]],
+        @"Expecting a valid interstitial adapter kind of class %@.",
+        NSStringFromClass( [SPAppLiftInterstitialAdapter class] ) );
+
+    [PlayAdsSDK 
+    	startWithAppID:appId
+        secretToken:secretToken
+        delegate:self.interstitialAdapter];
 
     return YES;
 }
 
+#pragma mark  
+#pragma mark NSObject: Creating, Copying, and Deallocating Objects
+
+- (void)dealloc
+{
+    // This will reset the PlayAdsSDK's delegate.
+    [PlayAdsSDK setDelegate:nil];
+}
+
 @end
+
+#pragma mark  
+
