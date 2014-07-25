@@ -8,20 +8,6 @@
 
 #import "SPBaseNetwork.h"
 
-
-
-#pragma mark  
-
 @interface SPHyprMXNetwork : SPBaseNetwork
 
-#pragma mark  
-#pragma mark Public Methods -
-
-#pragma mark  
-#pragma mark Initialisation
-
-- (instancetype)init;
-
 @end
-
-#pragma mark  

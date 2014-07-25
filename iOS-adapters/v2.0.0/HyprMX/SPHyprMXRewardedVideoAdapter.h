@@ -7,26 +7,11 @@
 //
 
 #import "SPRewardedVideoNetworkAdapter.h"
+#import "SPHyprMXNetwork.h"
 
+@interface SPHyprMXRewardedVideoAdapter:NSObject <SPRewardedVideoNetworkAdapter>
 
-
-@class SPHyprMXNetwork;
-
-
-
-#pragma mark  
-
-@interface SPHyprMXRewardedVideoAdapter : NSObject < 
-	SPRewardedVideoNetworkAdapter >
-
-#pragma mark  
-#pragma mark Public Properties -
-
-@property ( nonatomic, weak ) SPBaseNetwork *network;
-
-//!Typed convenience property for setting and getting the network.
-@property ( nonatomic, weak ) SPHyprMXNetwork *networkAsSPHyprMXNetwork;
+@property (nonatomic, weak) SPHyprMXNetwork *network;
 
 @end
 
-#pragma mark  

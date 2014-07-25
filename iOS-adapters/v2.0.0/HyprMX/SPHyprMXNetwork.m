@@ -17,170 +17,102 @@
 #import "SPSemanticVersion.h"
 #import "SPTPNGenericAdapter.h"
 
-// HyprMX SDK.
 #import <HyprMX/HyprMX.h>
 
 
-
-//
-// Constants
-//
-
-// --- Version
-
 static const NSInteger SPHyprMXVersionMajor = 2;
 static const NSInteger SPHyprMXVersionMinor = 0;
-static const NSInteger SPHyprMXVersionPatch = 0;
+static const NSInteger SPHyprMXVersionPatch = 1;
 
-// --- Data Dictionary Keys aka Network Parameters
+static NSString *const SPHyprMXDistributorID = @"SPHyprMXDistributorID";
+static NSString *const SPHyprMXPropertyID = @"SPHyprMXPropertyID";
 
-static NSString * const SPHyprMXDistributorID = @"SPHyprMXDistributorID";
-static NSString * const SPHyprMXPropertyID = @"SPHyprMXPropertyID";
-
-// --- User Defaults Keys
-
-static NSString * const SPHyprMXUserID = @"SPHyprMXUserID";
+static NSString *const SPHyprMXUserID = @"SPHyprMXUserID";
 
 
+@interface SPHyprMXNetwork ()
 
-#pragma mark  
+@property (nonatomic, strong) SPHyprMXRewardedVideoAdapter *HyprMXRewardedVideoAdapter;
+@property (nonatomic, copy, readonly) NSString *HyprMXUserID;
+@property (nonatomic, strong) id<SPTPNVideoAdapter> rewardedVideoAdapter;
 
-@interface SPHyprMXNetwork()
-
-@property ( nonatomic, strong ) SPHyprMXRewardedVideoAdapter *
-	HyprMXRewardedVideoAdapter;
-@property ( nonatomic, copy, readonly ) NSString *HyprMXUserID;
-@property ( nonatomic, strong ) id < SPTPNVideoAdapter > rewardedVideoAdapter;
-	
 @end
 
 
-
-
-#pragma mark  
-#pragma mark  
-#pragma mark  
-
 @implementation SPHyprMXNetwork
 
-#pragma mark  
-#pragma mark Private Properties -
-
 @synthesize HyprMXRewardedVideoAdapter = HyprMXRewardedVideoAdapter;
-
-- (NSString *)HyprMXUserID
-{
-	NSUserDefaults * const defaults = [NSUserDefaults standardUserDefaults];
-    
-	NSString *result = [defaults objectForKey:SPHyprMXUserID];
-    
-    if ( 
-    	![result isKindOfClass:[NSString class]]
-        	|| ![result length]
-    ){
-    	SPLogDebug( @"[HYPR] Creating new user ID." );
-    	result = [SPRandomID randomIDString];
-        
-        [defaults setObject:result forKey:SPHyprMXUserID];
-    }
-	else
-    {
-    	SPLogDebug( @"[HYPR] Using existing user ID." );
-    }
-    
-    return result;
-}
-
 @synthesize rewardedVideoAdapter = _rewardedVideoAdapter;
 
-#pragma mark  
-#pragma mark Public Methods -
-
-- (instancetype)init
-{
-    self = [super init];
-	
-    if (self) {
-    }
-	
-    return self;
-}
-
-#pragma mark  
-#pragma mark Method Overrides -
-
-#pragma mark  
-#pragma mark SPBaseNetwork
+#pragma mark - Class Methods
 
 + (SPSemanticVersion *)adapterVersion
 {
-    return [SPSemanticVersion 
-    	versionWithMajor:SPHyprMXVersionMajor
-        minor:SPHyprMXVersionMinor
-        patch:SPHyprMXVersionPatch];
+    return [SPSemanticVersion
+    versionWithMajor:SPHyprMXVersionMajor
+               minor:SPHyprMXVersionMinor
+               patch:SPHyprMXVersionPatch];
 }
+
+
+#pragma mark - Custom Accessors
+
+- (NSString *)HyprMXUserID
+{
+    NSUserDefaults *const defaults = [NSUserDefaults standardUserDefaults];
+
+    NSString *result = [defaults objectForKey:SPHyprMXUserID];
+
+    if (![result isKindOfClass:[NSString class]] || ![result length]) {
+        SPLogDebug(@"[HYPR] Creating new user ID.");
+        result = [SPRandomID randomIDString];
+
+        [defaults setObject:result forKey:SPHyprMXUserID];
+    } else {
+        SPLogDebug(@"[HYPR] Using existing user ID.");
+    }
+
+    return result;
+}
+
+
+#pragma mark - Public
 
 - (BOOL)startSDK:(NSDictionary *)data
 {
-	//
-	// Check parameter.
-	//
-	
-	if ( ![data isKindOfClass:[NSDictionary class]] ) {
-    
-		SPLogError( @"data parameter is nil or not a dictionary." );
-		return NO;
-        
-	}
+    if (![data isKindOfClass:[NSDictionary class]]) {
+        SPLogError(@"data parameter is nil or not a dictionary.");
+        return NO;
+    }
 
-	// --- Distributor ID.
-	
-	NSString * const distributorID = data[ SPHyprMXDistributorID ];
-	
-	if ( 
-		![distributorID isKindOfClass:[NSString class]] 
-			|| ![distributorID length]
-	){
-		SPLogError( @"No or empty value given for key %@.", 
-			SPHyprMXDistributorID );
+    NSString *const distributorID = data[SPHyprMXDistributorID];
 
-		return NO;
-	}
-	
-	// --- Property ID.
-	
-	NSString * const propertyID = data[ SPHyprMXPropertyID ];
-	
-	if ( 
-		![propertyID isKindOfClass:[NSString class]] 
-			|| ![propertyID length]
-	){
-		SPLogError( @"No or empty value given for key %@.",
-			SPHyprMXPropertyID );
+    if (![distributorID isKindOfClass:[NSString class]] || ![distributorID length]) {
+        SPLogError(@"No or empty value given for key %@.", SPHyprMXDistributorID);
 
-		return NO;
-	}
+        return NO;
+    }
 
-	//
-    // Start SDK.
-    //
 
-    SPLogInfo(@"Initializing HyprMX SDK version %@",[[HYPRManager sharedManager] versionString]);
-    [[HYPRManager sharedManager] 
-		initializeWithDistributorId:distributorID
-		propertyId:propertyID 
-		userId:self.HyprMXUserID];
+    NSString *const propertyID = data[SPHyprMXPropertyID];
+
+    if (![propertyID isKindOfClass:[NSString class]] || ![propertyID length]) {
+        SPLogError(@"No or empty value given for key %@.", SPHyprMXPropertyID);
+
+        return NO;
+    }
+
+    [[HYPRManager sharedManager] initializeWithDistributorId:distributorID propertyId:propertyID userId:self.HyprMXUserID];
 
     return YES;
 }
+
 
 - (void)startRewardedVideoAdapter:(NSDictionary *)data
 {
     self.HyprMXRewardedVideoAdapter = [SPHyprMXRewardedVideoAdapter new];
 
-    SPTPNGenericAdapter * const videoAdapterWrapper = 
-		[[SPTPNGenericAdapter alloc] initWithVideoNetworkAdapter:
-			self.HyprMXRewardedVideoAdapter];
+    SPTPNGenericAdapter *const videoAdapterWrapper = [[SPTPNGenericAdapter alloc] initWithVideoNetworkAdapter:self.HyprMXRewardedVideoAdapter];
 
     self.HyprMXRewardedVideoAdapter.delegate = videoAdapterWrapper;
     self.rewardedVideoAdapter = videoAdapterWrapper;
@@ -189,5 +121,3 @@ static NSString * const SPHyprMXUserID = @"SPHyprMXUserID";
 }
 
 @end
-
-#pragma mark  
