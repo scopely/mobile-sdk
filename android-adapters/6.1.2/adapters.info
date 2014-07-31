@@ -7,6 +7,12 @@
          ]
       },
       {
+         "qualifiedName":"com.sponsorpay.mediation.UnityAdsMediationAdapter",
+         "versions":[
+            "2.1.0"
+         ]
+      },
+      {
          "qualifiedName":"com.sponsorpay.mediation.FlurryMediationAdapter",
          "versions":[
             "2.0.0",
