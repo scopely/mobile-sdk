@@ -7,6 +7,12 @@
          ]
       },
       {
+         "qualifiedName":"com.sponsorpay.mediation.UnityAdsMediationAdapter",
+         "versions":[
+            "2.1.0"
+         ]
+      },
+      {
          "qualifiedName":"com.sponsorpay.mediation.FlurryMediationAdapter",
          "versions":[
             "2.0.0",
@@ -24,14 +30,16 @@
          "qualifiedName":"com.sponsorpay.mediation.AppLiftMediationAdapter",
          "versions":[
             "1.0.0",
-            "1.0.1"
+            "1.0.1",
+            "1.1.0"
          ]
       },
       {
          "qualifiedName":"com.sponsorpay.mediation.AppLovinMediationAdapter",
          "versions":[
             "1.1.0",
-            "1.2.0"
+            "1.2.0",
+            "1.3.0"
          ]
       },
       {
