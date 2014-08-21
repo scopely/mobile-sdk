@@ -38,11 +38,6 @@
     return [self.network name];
 }
 
-- (void)startWrappedSDK
-{
-
-}
-
 - (void)setParameters:(NSDictionary *)parameters
 {
     self.appId = parameters[@"appId"];
@@ -71,26 +66,26 @@
     [PlayAdsSDK cache];
 }
 
-- (void)playAdsInterstitialReady
+- (void)playAdsAdReady
 {
     LogInvocation;
     _adLoaded = YES;
 }
 
-- (void)playAdsInterstitialDidShown
+- (void)playAdsAdDidShow
 {
     LogInvocation;
     _adLoaded = NO;
     [self.delegate adapterDidShowInterstitial:self];
 }
 
-- (void)playAdsInterstitialDidFailWithError:(NSError*)error
+- (void)playAdsAdDidFailWithError:(NSError*)error
 {
     LogInvocation;
     [self.delegate adapter:self didFailWithError:error];
 }
 
-- (void)playAdsInterstitialDidClose
+- (void)playAdsAdDidClose
 {
     LogInvocation;
     [self.delegate adapter:self didDismissInterstitialWithReason:SPInterstitialDismissReasonUserClosedAd];

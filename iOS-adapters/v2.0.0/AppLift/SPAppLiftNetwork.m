@@ -18,50 +18,44 @@ static NSString *const SPAppLiftSecretToken = @"SPAppLiftSecretToken";
 
 // Adapter versioning - Remember to update the header
 static const NSInteger SPAppLiftVersionMajor = 2;
-static const NSInteger SPAppLiftVersionMinor = 1;
+static const NSInteger SPAppLiftVersionMinor = 2;
 static const NSInteger SPAppLiftVersionPatch = 0;
 
 
+@interface SPAppLiftNetwork ()
 
-#pragma mark  
-
-@interface SPAppLiftNetwork()
-
-@property ( nonatomic, strong, readonly ) SPAppLiftInterstitialAdapter *interstitialAdapter;
+@property (nonatomic, strong, readonly) SPAppLiftInterstitialAdapter *interstitialAdapter;
 
 @end
 
 
+@implementation SPAppLiftNetwork {
+    @private
 
-#pragma mark  
-
-@implementation SPAppLiftNetwork
-{
-@private
-
-	SPAppLiftInterstitialAdapter *interstitialAdapter;
-    
+    SPAppLiftInterstitialAdapter *interstitialAdapter;
 }
 
-#pragma mark  
-#pragma mark Private Properties -
-
 @synthesize interstitialAdapter = interstitialAdapter;
+
+#pragma mark - Class Methods
 
 + (SPSemanticVersion *)adapterVersion
 {
     return [SPSemanticVersion versionWithMajor:SPAppLiftVersionMajor minor:SPAppLiftVersionMinor patch:SPAppLiftVersionPatch];
 }
 
-#pragma mark  
 
-- (instancetype)init{
+#pragma mark - Initialization
+
+- (instancetype)init
+{
     self = [super init];
     if (self) {
         self->interstitialAdapter = [[SPAppLiftInterstitialAdapter alloc] init];
     }
     return self;
 }
+
 
 - (BOOL)startSDK:(NSDictionary *)data
 {
@@ -72,22 +66,21 @@ static const NSInteger SPAppLiftVersionPatch = 0;
         SPLogError(@"Could not start %@ Provider. %@ or %@ empty or missing.", self.name, SPAppLiftAppId, SPAppLiftSecretToken);
         return NO;
     }
-    
-    NSAssert(
-    	[self.interstitialAdapter isKindOfClass:
-            [SPAppLiftInterstitialAdapter class]],
-        @"Expecting a valid interstitial adapter kind of class %@.",
-        NSStringFromClass( [SPAppLiftInterstitialAdapter class] ) );
 
-    [PlayAdsSDK 
-    	startWithAppID:appId
-        secretToken:secretToken
-        delegate:self.interstitialAdapter];
+    NSAssert(
+    [self.interstitialAdapter isKindOfClass:
+                              [SPAppLiftInterstitialAdapter class]],
+    @"Expecting a valid interstitial adapter kind of class %@.",
+    NSStringFromClass([SPAppLiftInterstitialAdapter class]));
+
+    [PlayAdsSDK
+    startWithAppID:appId
+       secretToken:secretToken
+          delegate:self.interstitialAdapter];
 
     return YES;
 }
 
-#pragma mark  
 #pragma mark NSObject: Creating, Copying, and Deallocating Objects
 
 - (void)dealloc
@@ -97,6 +90,3 @@ static const NSInteger SPAppLiftVersionPatch = 0;
 }
 
 @end
-
-#pragma mark  
-
