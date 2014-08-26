@@ -51,7 +51,8 @@
       {
          "qualifiedName":"com.sponsorpay.mediation.InMobiMediationAdapter",
          "versions":[
-            "1.0.0"
+            "1.0.0",
+            "1.0.1"
          ]
       },
       {
