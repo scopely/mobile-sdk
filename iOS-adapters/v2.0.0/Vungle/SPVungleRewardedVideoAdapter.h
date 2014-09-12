@@ -6,14 +6,14 @@
 // Copyright 2011-2013 SponsorPay. All rights reserved.
 //
 
+#import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
-#import <vunglepub/vunglepub.h>
+#import <VungleSDK/VungleSDK.h>
 #import "SPTPNVideoAdapter.h"
 
-#define VungleProtocol , VGVunglePubDelegate
-
 @class SPVungleNetwork;
-@interface SPVungleRewardedVideoAdapter : NSObject <SPTPNVideoAdapter VungleProtocol>
+
+@interface SPVungleRewardedVideoAdapter : NSObject <SPTPNVideoAdapter, VungleSDKDelegate>
 
 @property (nonatomic, weak) SPVungleNetwork *network;
 
