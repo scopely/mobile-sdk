@@ -13,8 +13,9 @@
 #import "FlurryAds.h"
 static const NSInteger kFlurryNoAdsErrorCode = 104;
 static NSString *const SPFlurryVideoAdSpace = @"SPFlurryAdSpaceVideo";
+static NSString *const SPFlurryEnableTestAds = @"SPFlurryEnableTestAds";
 
-@interface SPFlurryRewardedVideoAdapter()
+@interface SPFlurryAppCircleClipsRewardedVideoAdapter()
 
 @property (nonatomic, copy) NSString *videoAdsSpace;
 @property (copy) SPTPNValidationResultBlock validationResultsBlock;
@@ -27,7 +28,7 @@ static NSString *const SPFlurryVideoAdSpace = @"SPFlurryAdSpaceVideo";
 
 @end
 
-@implementation SPFlurryRewardedVideoAdapter
+@implementation SPFlurryAppCircleClipsRewardedVideoAdapter
 
 - (BOOL)startAdapterWithDictionary:(NSDictionary *)dict
 {
@@ -39,10 +40,10 @@ static NSString *const SPFlurryVideoAdSpace = @"SPFlurryAdSpaceVideo";
 
     self.videoAdsSpace = dict[SPFlurryVideoAdSpace];
     [FlurryAds initialize:self.mainWindow.rootViewController];
-#ifdef FLURRY_TEST_ADS_ENABLED
-#warning Flurry Test Ads enabled
-    [FlurryAds enableTestAds:YES];
-#endif
+    NSNumber *testAdsEnabled = dict[SPFlurryEnableTestAds];
+    if (testAdsEnabled) {
+        [FlurryAds enableTestAds:[testAdsEnabled boolValue]];
+    }
     [FlurryAds setAdDelegate:self];
 
     return YES;
@@ -125,9 +126,19 @@ static NSString *const SPFlurryVideoAdSpace = @"SPFlurryAdSpaceVideo";
 
 - (void)spaceDidReceiveAd:(NSString*)adSpace
 {
-    if ([self isThisAdSpace:adSpace])
-        if (self.validating)
+    if ([self isThisAdSpace:adSpace]){
+        if (self.validating){
             [self notifyOfValidationResult:SPTPNValidationSuccess];
+        }
+    }
+}
+
+- (void) spaceDidRender:(NSString *)space interstitial:(BOOL)interstitial
+{
+    if ([self isThisAdSpace:space]) {
+        self.playingState = SPTPNProviderPlayingStatePlaying;
+        self.videoEventsCallback(self.networkName, SPTPNVideoEventStarted);
+    }
 }
 
 - (void)spaceDidFailToReceiveAd:(NSString *)adSpace error:(NSError *)error
@@ -149,8 +160,6 @@ static NSString *const SPFlurryVideoAdSpace = @"SPFlurryAdSpaceVideo";
         if (self.playingDidTimeout) {
             return NO;
         } else {
-            self.playingState = SPTPNProviderPlayingStatePlaying;
-            self.videoEventsCallback(self.networkName, SPTPNVideoEventStarted);
             return YES;
         }
     }

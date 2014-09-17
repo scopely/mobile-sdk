@@ -12,12 +12,10 @@
 
 #import "FlurryAdDelegate.h"
 
-// #define FLURRY_TEST_ADS_ENABLED
+@class SPFlurryAppCircleClipsNetwork;
 
-@class SPFlurryNetwork;
+@interface SPFlurryAppCircleClipsRewardedVideoAdapter : NSObject <SPTPNVideoAdapter, FlurryAdDelegate>
 
-@interface SPFlurryRewardedVideoAdapter : NSObject <SPTPNVideoAdapter, FlurryAdDelegate>
-
-@property (nonatomic, weak) SPFlurryNetwork *network;
+@property (nonatomic, weak) SPFlurryAppCircleClipsNetwork *network;
 
 @end
