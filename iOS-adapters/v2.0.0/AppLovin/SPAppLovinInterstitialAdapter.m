@@ -2,8 +2,7 @@
 //  SPAppLovingInterstitialAdapter.m
 //  SponsorPayTestApp
 //
-//  Created by David Davila on 01/11/13.
-//  Copyright (c) 2013 SponsorPay. All rights reserved.
+//  Copyright (c) 2013 Fyber. All rights reserved.
 //
 
 #import "SPAppLovinInterstitialAdapter.h"
@@ -11,19 +10,17 @@
 #import "ALInterstitialAd.h"
 #import "SPLogger.h"
 
-#define LogInvocation NSLog(@"%s", __PRETTY_FUNCTION__);
+#define LogInvocation SPLogDebug(@"%s", __PRETTY_FUNCTION__)
 
 NSString *const SPAppLovinSDKAppKey = @"SPAppLovinSDKAppKey";
 
-@interface SPAppLovinInterstitialAdapter() {
-    BOOL _adWasClicked;
-}
+@interface SPAppLovinInterstitialAdapter ()
 
-@property (weak, nonatomic) id<SPInterstitialNetworkAdapterDelegate> delegate;
-@property (strong, nonatomic) NSDictionary *parameters;
-
-@property (strong, nonatomic) ALSdk *appLovinSDKInstance;
-@property (strong, nonatomic) id lastLoadedAd;
+@property (nonatomic, weak, ) id<SPInterstitialNetworkAdapterDelegate> delegate;
+@property (nonatomic, strong) NSDictionary *parameters;
+@property (nonatomic, strong) ALSdk *appLovinSDKInstance;
+@property (nonatomic, strong) ALAd *lastLoadedAd;
+@property (nonatomic, assign) BOOL adWasClicked;
 
 @end
 
@@ -56,25 +53,25 @@ NSString *const SPAppLovinSDKAppKey = @"SPAppLovinSDKAppKey";
 {
     self.lastLoadedAd = nil;
 
-    id adService = [self.appLovinSDKInstance adService];
+    ALAdService *adService = [self.appLovinSDKInstance adService];
     [adService loadNextAd:[ALAdSize sizeInterstitial] andNotify:self];
 }
 
 - (BOOL)canShowInterstitial
 {
     if (!self.lastLoadedAd) {
-        // seems like there's some interest on this adapter. Try again at least for next time.
         [self cacheInterstitial];
+        return NO;
     }
 
-    return self.lastLoadedAd != nil;
+    return YES;
 }
 
 - (void)showInterstitialFromViewController:(UIViewController *)viewController
 {
-    _adWasClicked = NO;
+    self.adWasClicked = NO;
 
-    id interstitialAd = [[ALInterstitialAd alloc] initInterstitialAdWithSdk:self.appLovinSDKInstance];
+    ALInterstitialAd *interstitialAd = [[ALInterstitialAd alloc] initWithSdk:self.appLovinSDKInstance];
     [interstitialAd setAdDisplayDelegate:self];
     UIWindow *window = viewController.view.window;
     [interstitialAd showOver:window andRender:self.lastLoadedAd];
@@ -82,38 +79,44 @@ NSString *const SPAppLovinSDKAppKey = @"SPAppLovinSDKAppKey";
 
 #pragma mark - ALAdLoadDelegate
 
-- (void)adService:(id)adService didLoadAd:(id)ad
+- (void)adService:(ALAdService *)adService didLoadAd:(ALAd *)ad;
 {
-    LogInvocation
+    LogInvocation;
     self.lastLoadedAd = ad;
 }
 
-- (void)adService:(id)adService didFailToLoadAdWithError:(int)code
+- (void)adService:(ALAdService *)adService didFailToLoadAdWithError:(int)code
 {
-    NSError *error = [NSError errorWithDomain:@"com.sponsorpay.interstitialError" code:code userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"AppLovin returned code %d", code]}];
+    if (code == kALErrorCodeNoFill) {
+        SPLogDebug(@"AppLovin returned no fill");
+        return;
+    }
+
+    NSDictionary *userInfo = @{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"AppLovin returned code %d", code]};
+    NSError *error = [NSError errorWithDomain:@"com.sponsorpay.interstitialError" code:code userInfo:userInfo];
+    
     [self.delegate adapter:self didFailWithError:error];
 }
 
 #pragma mark - ALAdDisplayDelegate
 
-- (void)ad:(id)ad wasDisplayedIn:(id)view
+- (void)ad:(ALAd *)ad wasDisplayedIn:(UIView *)view
 {
-    LogInvocation
+    LogInvocation;
     [self.delegate adapterDidShowInterstitial:self];
 }
 
-- (void)ad:(id)ad wasClickedIn:(id)view
+- (void)ad:(ALAd *)ad wasClickedIn:(UIView *)view;
 {
-    LogInvocation
-    _adWasClicked = YES;
+    LogInvocation;
+    self.adWasClicked = YES;
 }
 
-- (void)ad:(id)ad wasHiddenIn:(id)view
+- (void)ad:(ALAd *)ad wasHiddenIn:(UIView *)view;
 {
-    LogInvocation
+    LogInvocation;
 
-    SPInterstitialDismissReason reason = _adWasClicked ?
-    SPInterstitialDismissReasonUserClickedOnAd : SPInterstitialDismissReasonUserClosedAd;
+    SPInterstitialDismissReason reason = self.adWasClicked ? SPInterstitialDismissReasonUserClickedOnAd : SPInterstitialDismissReasonUserClosedAd;
 
     [self.delegate adapter:self didDismissInterstitialWithReason:reason];
 

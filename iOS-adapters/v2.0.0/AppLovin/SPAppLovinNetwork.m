@@ -1,9 +1,8 @@
 //
 //  SPProviderAppLovin.m
-//  SponsorPay iOS SDK - AppLovin Adapter v.2.0.0
+//  Fyber iOS SDK - AppLovin Adapter v.2.1.0
 //
-//  Created by Daniel Barden on 09/01/14.
-//  Copyright (c) 2014 SponsorPay. All rights reserved.
+//  Copyright (c) 2014 Fyber. All rights reserved.
 //
 
 #import "SPAppLovinNetwork.h"
@@ -11,19 +10,16 @@
 #import "SPInterstitialNetworkAdapter.h"
 #import "SPRewardedVideoNetworkAdapter.h"
 #import "SPSemanticVersion.h"
-#import "SPSystemVersionChecker.h"
 #import "SPLogger.h"
 #import "ALSdk.h"
 
-
-static NSString *const SPAppLovinSDKKey = @"SPAppLovinSdkKey";
-
-static NSString *const SPInterstitialAdapterClassName = @"SPAppLovinInterstitialAdapter";
-static NSString *const SPRewardedVideoAdapterClassName = @"SPAppLovinRewardedVideoAdapter";
+static NSString *const SPAppLovinSDKKey                 = @"SPAppLovinSdkKey";
+static NSString *const SPInterstitialAdapterClassName   = @"SPAppLovinInterstitialAdapter";
+static NSString *const SPRewardedVideoAdapterClassName  = @"SPAppLovinRewardedVideoAdapter";
 
 // Adapter versioning - Remember to update the header
 static const NSInteger SPAppLovinVersionMajor = 2;
-static const NSInteger SPAppLovinVersionMinor = 0;
+static const NSInteger SPAppLovinVersionMinor = 1;
 static const NSInteger SPAppLovinVersionPatch = 0;
 
 @interface SPAppLovinNetwork()
@@ -45,8 +41,12 @@ static const NSInteger SPAppLovinVersionPatch = 0;
 
 + (SPSemanticVersion *)adapterVersion
 {
-    return [SPSemanticVersion versionWithMajor:SPAppLovinVersionMajor minor:SPAppLovinVersionMinor patch:SPAppLovinVersionPatch];
+    return [SPSemanticVersion versionWithMajor:SPAppLovinVersionMajor
+                                         minor:SPAppLovinVersionMinor
+                                         patch:SPAppLovinVersionPatch];
 }
+
+#pragma mark - Lifecycle
 
 - (instancetype)init
 {
@@ -65,21 +65,22 @@ static const NSInteger SPAppLovinVersionPatch = 0;
     return self;
 }
 
+#pragma mark - Public
+
 - (BOOL)startSDK:(NSDictionary *)data
 {
-    NSString *apiKey = data[SPAppLovinSDKKey];
-
-    if (!apiKey.length) {
+    self.apiKey = data[SPAppLovinSDKKey];
+    
+    if (!self.apiKey.length) {
         SPLogError(@"Could not start %@ Provider. %@ empty or missing.", self.name, SPAppLovinSDKKey);
         return NO;
     }
-
-    if (![SPSystemVersionChecker runningOniOS6OrNewer]) {
+    
+    if (NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0) {
         SPLogError(@"AppLovin only supports iOS 6 or later");
         return NO;
     }
-
-    self.apiKey = data[SPAppLovinSDKKey];
+    
     return YES;
 }
 
