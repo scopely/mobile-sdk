@@ -2,8 +2,7 @@
 //  SPApplovinAdapter.h
 //  SponsorPayTestApp
 //
-//  Created by Daniel Barden on 06/01/14.
-//  Copyright (c) 2014 SponsorPay. All rights reserved.
+//  Copyright (c) 2014 Fyber. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

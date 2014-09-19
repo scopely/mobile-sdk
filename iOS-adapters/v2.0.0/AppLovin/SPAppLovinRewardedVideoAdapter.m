@@ -2,8 +2,7 @@
 //  SPApplovinAdapter.m
 //  SponsorPayTestApp
 //
-//  Created by Daniel Barden on 06/01/14.
-//  Copyright (c) 2014 SponsorPay. All rights reserved.
+//  Copyright (c) 2014 Fyber. All rights reserved.
 //
 
 #import "SPAppLovinNetwork.h"
@@ -16,25 +15,22 @@
 #import "ALAdDisplayDelegate.h"
 #import "ALAdVideoPlaybackDelegate.h"
 #import "ALAdRewardDelegate.h"
+#import "SPTPNMediationTypes.h"
 
-@interface SPAppLovinRewardedVideoAdapter() <ALAdLoadDelegate, ALAdVideoPlaybackDelegate, ALAdRewardDelegate, ALAdDisplayDelegate>
+@interface SPAppLovinRewardedVideoAdapter ()<ALAdVideoPlaybackDelegate, ALAdRewardDelegate, ALAdDisplayDelegate>
 
-@property (nonatomic, strong) ALIncentivizedInterstitialAd *lastAd;
-@property (strong, nonatomic) ALSdk *appLovinSDKInstance;
-@property (copy) SPTPNVideoEventsHandlerBlock videoEventsCallback;
-
-@property (assign, nonatomic) BOOL videoAvailable;
-
-@property (assign, nonatomic) BOOL rewardValidationSucceeded;
-@property (assign, nonatomic) BOOL wasUserRewarded;
-
-@property (assign, nonatomic) dispatch_once_t playDispatchOnceToken;
+@property (nonatomic, strong) ALIncentivizedInterstitialAd *videoAd;
+@property (nonatomic, assign) BOOL rewardValidationSucceeded;
+@property (nonatomic, assign) dispatch_once_t playDispatchOnceToken;
+@property (nonatomic, assign, getter=isFullyWatched) BOOL fullyWatched;
 
 @end
 
 @implementation SPAppLovinRewardedVideoAdapter
 
-@synthesize delegate = _delegate;
+@synthesize delegate;
+
+#pragma mark - SPRewardedVideoNetworkAdapter
 
 - (NSString *)networkName
 {
@@ -43,92 +39,69 @@
 
 - (BOOL)startAdapterWithDictionary:(NSDictionary *)dict
 {
-    ALSdkSettings *alSDKSettings = [[ALSdkSettings alloc] init];
-    self.appLovinSDKInstance = [ALSdk sharedWithKey:self.network.apiKey settings:alSDKSettings];
-    self.lastAd = [[ALIncentivizedInterstitialAd alloc] initIncentivizedInterstitialWithSdk:self.appLovinSDKInstance];
-
+    [self.videoAd preloadAndNotify:nil];
     return YES;
 }
 
 - (void)checkAvailability
 {
-    if (!self.videoAvailable) {
-        [self.lastAd preloadAndNotify:self];
-        self.lastAd.adVideoPlaybackDelegate = self;
-        self.lastAd.adDisplayDelegate = self;
-    } else {
-        [self.delegate adapter:self didReportVideoAvailable:YES];
-    }
+    [self.delegate adapter:self didReportVideoAvailable:self.videoAd.isReadyForDisplay];
 }
 
 - (void)playVideoWithParentViewController:(UIViewController *)parentVC
 {
-    [self.lastAd showOver:[[UIApplication sharedApplication] keyWindow] andNotify:self];
-}
-
-#pragma mark - ALAdLoadDelegate Methods
-- (void)adService:(ALAdService *)adService didLoadAd:(ALAd *)ad
-{
-    SPLogDebug(@"AppLovin ad Loaded");
-    self.videoAvailable = YES;
-    self.rewardValidationSucceeded = NO;
-    self.wasUserRewarded = NO;
-    self.playDispatchOnceToken = 0;
-    [self.delegate adapter:self didReportVideoAvailable:YES];
-}
-
-- (void)adService:(ALAdService *)adService didFailToLoadAdWithError:(int)code
-{
-    SPLogDebug(@"AppLovin failed to load ads. Code: %d", code);
-    [self.delegate adapter:self didReportVideoAvailable:NO];
+    self.videoAd.adVideoPlaybackDelegate    = self;
+    self.videoAd.adDisplayDelegate          = self;
+    self.rewardValidationSucceeded          = NO;
+    self.playDispatchOnceToken              = 0;
+    
+    [self.videoAd showOver:[[UIApplication sharedApplication] keyWindow] andNotify:self];
 }
 
 #pragma mark - AlAdVideoPlaybackDelegate
 - (void)videoPlaybackBeganInAd:(ALAd *)ad
 {
     SPLogDebug(@"AppLovin video started playing");
-
+    
     // When the app resigns active and comes back from the background, this
     // method will be called again. We want to send it just once.
     dispatch_once(&_playDispatchOnceToken, ^{
         [self.delegate adapterVideoDidStart:self];
     });
-
-    self.videoAvailable = NO;
 }
 
--(void)videoPlaybackEndedInAd:(ALAd *)ad
-            atPlaybackPercent:(NSNumber *)percentPlayed
-                 fullyWatched:(BOOL)wasFullyWatched
+- (void)videoPlaybackEndedInAd:(ALAd *)ad atPlaybackPercent:(NSNumber *)percentPlayed fullyWatched:(BOOL)wasFullyWatched
 {
-    SPLogDebug(@"AppLovin video stopped playing at %@ and %@ fully watched", percentPlayed, wasFullyWatched? @"was": @"was not");
-    if (!wasFullyWatched) {
-        [self.delegate adapterVideoDidAbort:self];
-    } else if (self.rewardValidationSucceeded) {
-        self.wasUserRewarded = YES;
-        [self.delegate adapterVideoDidFinish:self];
-    }
+    self.fullyWatched = wasFullyWatched;
+    SPLogDebug(@"AppLovin video stopped playing at %@ and %@ fully watched", percentPlayed, wasFullyWatched ? @"was" : @"was not");
 }
 
-#pragma mark - AppLovin display delegate
+#pragma mark - ALAdDisplayDelegate
+
 - (void)ad:(ALAd *)ad wasDisplayedIn:(UIView *)view
 {
-
+    // <# code #>
 }
 
 - (void)ad:(ALAd *)ad wasClickedIn:(UIView *)view
 {
-
+    // <# code #>
 }
 
 - (void)ad:(ALAd *)ad wasHiddenIn:(UIView *)view
 {
-    if (self.wasUserRewarded) {
+    [self.videoAd preloadAndNotify:nil];
+    
+    if (self.rewardValidationSucceeded && self.isFullyWatched) {
+        [self.delegate adapterVideoDidFinish:self];
         [self.delegate adapterVideoDidClose:self];
+        return;
     }
+    
+    [self.delegate adapterVideoDidAbort:self];
 }
 
-#pragma mark - AppLovin reward delegate
+#pragma mark - ALAdRewardDelegate
 - (void)userDeclinedToViewAd:(ALAd *)ad
 {
     [self.delegate adapterVideoDidAbort:self];
@@ -156,6 +129,17 @@
 {
     SPLogError(@"AppLovin reward failed with error %d", responseCode);
     self.rewardValidationSucceeded = NO;
+}
+
+#pragma mark - Accessors
+
+-(ALIncentivizedInterstitialAd *)videoAd {
+    if (!_videoAd) {
+        ALSdkSettings *alSDKSettings = [[ALSdkSettings alloc] init];
+        ALSdk *appLovinSDKInstance = [ALSdk sharedWithKey:self.network.apiKey settings:alSDKSettings];
+        _videoAd = [[ALIncentivizedInterstitialAd alloc] initWithSdk:appLovinSDKInstance];
+    }
+    return _videoAd;
 }
 
 @end
