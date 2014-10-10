@@ -9,7 +9,7 @@
 #import "SPHyprMXRewardedVideoAdapter.h"
 #import "SPHyprMXNetwork.h"
 #import "SPLogger.h"
-#import <HyprMX/HyprMX.h>
+#import "HyprMX.h"
 
 #ifndef SP_TO_NSSTRING
 #define SP_TO_NSSTRING(s) (sizeof(s) ? @ # s : @ # s)

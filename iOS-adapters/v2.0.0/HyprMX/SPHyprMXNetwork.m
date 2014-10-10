@@ -17,7 +17,7 @@
 #import "SPSemanticVersion.h"
 #import "SPTPNGenericAdapter.h"
 
-#import <HyprMX/HyprMX.h>
+#import "HyprMX.h"
 
 
 static const NSInteger SPHyprMXVersionMajor = 2;

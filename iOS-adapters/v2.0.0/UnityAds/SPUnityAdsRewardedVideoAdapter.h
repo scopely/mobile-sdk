@@ -13,7 +13,7 @@
 #import "SPRewardedVideoNetworkAdapter.h"
 
 
-#import <UnityAds/UnityAds.h>
+#import "UnityAds.h"
 
 @class SPUnityAdsNetwork;
 

@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Fyber. All rights reserved.
 //
 
-#import <UnityAds/UnityAds.h>
+#import "UnityAds.h"
 
 #import "SPUnityAdsNetwork.h"
 #import "SPLogger.h"
