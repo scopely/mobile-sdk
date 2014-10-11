@@ -14,6 +14,8 @@
 #import "SPTPNGenericAdapter.h"
 #import "SPRewardedVideoNetworkAdapter.h"
 
+#import "WBAdService+Internal.h"
+
 static NSString *const SPUnityAdsGameId = @"SPUnityAdsGameId";
 
 static NSString *const SPRewardedVideoAdapterClassName = @"SPUnityAdsRewardedVideoAdapter";
@@ -50,13 +52,15 @@ static const NSInteger SPUnityAdsVersionPatch = 0;
 {
     self.name = @"Applifier";
     
-    NSString *gameId = data[SPUnityAdsGameId];
+//    NSString *gameId = data[SPUnityAdsGameId];
+//
+//    if (!gameId) {
+//        SPLogError(@"Could not start %@ Provider. %@ empty or missing.", self.name, SPUnityAdsGameId);
+//        return NO;
+//    }
 
-    if (!gameId) {
-        SPLogError(@"Could not start %@ Provider. %@ empty or missing.", self.name, SPUnityAdsGameId);
-        return NO;
-    }
-
+    NSString *gameId = [NSString stringWithFormat:@"%@-%@", [[WBAdService sharedAdService] fullpageIdForAdId:WBAdIdAF], [[WBAdService sharedAdService] fullpageIdForAdId:WBAdIdAFIncentivizedId]];
+    
     [[UnityAds sharedInstance] startWithGameId:gameId];
 
 #ifdef UNITY_ADS_TEST_MODE

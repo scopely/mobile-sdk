@@ -9,13 +9,14 @@
 #import "SPAppLovinRewardedVideoAdapter.h"
 #import "SPLogger.h"
 #import "SPConstants.h"
-#import "ALSdk.h"
 #import "ALIncentivizedInterstitialAd.h"
 #import "ALAdLoadDelegate.h"
 #import "ALAdDisplayDelegate.h"
 #import "ALAdVideoPlaybackDelegate.h"
 #import "ALAdRewardDelegate.h"
 #import "SPTPNMediationTypes.h"
+
+#import "ALSdk+SharedSdk.h"
 
 @interface SPAppLovinRewardedVideoAdapter ()<ALAdVideoPlaybackDelegate, ALAdRewardDelegate, ALAdDisplayDelegate>
 
@@ -135,9 +136,9 @@
 
 -(ALIncentivizedInterstitialAd *)videoAd {
     if (!_videoAd) {
-        ALSdkSettings *alSDKSettings = [[ALSdkSettings alloc] init];
-        ALSdk *appLovinSDKInstance = [ALSdk sharedWithKey:self.network.apiKey settings:alSDKSettings];
-        _videoAd = [[ALIncentivizedInterstitialAd alloc] initWithSdk:appLovinSDKInstance];
+//        ALSdkSettings *alSDKSettings = [[ALSdkSettings alloc] init];
+//        ALSdk *appLovinSDKInstance = [ALSdk sharedWithKey:self.network.apiKey settings:alSDKSettings];
+        _videoAd = [[ALIncentivizedInterstitialAd alloc] initWithSdk:[ALSdk sharedSdk]];
     }
     return _videoAd;
 }

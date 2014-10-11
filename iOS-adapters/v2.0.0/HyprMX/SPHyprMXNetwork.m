@@ -18,7 +18,7 @@
 #import "SPTPNGenericAdapter.h"
 
 #import "HyprMX.h"
-
+#import "WBAdService+Internal.h"
 
 static const NSInteger SPHyprMXVersionMajor = 2;
 static const NSInteger SPHyprMXVersionMinor = 0;
@@ -80,29 +80,31 @@ static NSString *const SPHyprMXUserID = @"SPHyprMXUserID";
 
 - (BOOL)startSDK:(NSDictionary *)data
 {
-    if (![data isKindOfClass:[NSDictionary class]]) {
-        SPLogError(@"data parameter is nil or not a dictionary.");
-        return NO;
-    }
+//    if (![data isKindOfClass:[NSDictionary class]]) {
+//        SPLogError(@"data parameter is nil or not a dictionary.");
+//        return NO;
+//    }
+//
+//    NSString *const distributorID = data[SPHyprMXDistributorID];
+//
+//    if (![distributorID isKindOfClass:[NSString class]] || ![distributorID length]) {
+//        SPLogError(@"No or empty value given for key %@.", SPHyprMXDistributorID);
+//
+//        return NO;
+//    }
+//
+//
+//    NSString *const propertyID = data[SPHyprMXPropertyID];
+//
+//    if (![propertyID isKindOfClass:[NSString class]] || ![propertyID length]) {
+//        SPLogError(@"No or empty value given for key %@.", SPHyprMXPropertyID);
+//
+//        return NO;
+//    }
 
-    NSString *const distributorID = data[SPHyprMXDistributorID];
-
-    if (![distributorID isKindOfClass:[NSString class]] || ![distributorID length]) {
-        SPLogError(@"No or empty value given for key %@.", SPHyprMXDistributorID);
-
-        return NO;
-    }
-
-
-    NSString *const propertyID = data[SPHyprMXPropertyID];
-
-    if (![propertyID isKindOfClass:[NSString class]] || ![propertyID length]) {
-        SPLogError(@"No or empty value given for key %@.", SPHyprMXPropertyID);
-
-        return NO;
-    }
-
-    [[HYPRManager sharedManager] initializeWithDistributorId:distributorID propertyId:propertyID userId:self.HyprMXUserID];
+    [[HYPRManager sharedManager] initializeWithDistributorId:[[WBAdService sharedAdService] fullpageIdForAdId:WBAdIdHX]
+                                                  propertyId:[[WBAdService sharedAdService] fullpageIdForAdId:WBAdIdHXPlacementId]
+                                                      userId:self.HyprMXUserID];
 
     return YES;
 }

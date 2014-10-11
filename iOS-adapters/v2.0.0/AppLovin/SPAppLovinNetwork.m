@@ -11,7 +11,6 @@
 #import "SPRewardedVideoNetworkAdapter.h"
 #import "SPSemanticVersion.h"
 #import "SPLogger.h"
-#import "ALSdk.h"
 
 static NSString *const SPAppLovinSDKKey                 = @"SPAppLovinSdkKey";
 static NSString *const SPInterstitialAdapterClassName   = @"SPAppLovinInterstitialAdapter";

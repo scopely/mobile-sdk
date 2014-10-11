@@ -10,6 +10,8 @@
 #import "ALInterstitialAd.h"
 #import "SPLogger.h"
 
+#import "ALSdk+SharedSdk.h"
+
 #define LogInvocation SPLogDebug(@"%s", __PRETTY_FUNCTION__)
 
 NSString *const SPAppLovinSDKAppKey = @"SPAppLovinSDKAppKey";
@@ -18,7 +20,7 @@ NSString *const SPAppLovinSDKAppKey = @"SPAppLovinSDKAppKey";
 
 @property (nonatomic, weak, ) id<SPInterstitialNetworkAdapterDelegate> delegate;
 @property (nonatomic, strong) NSDictionary *parameters;
-@property (nonatomic, strong) ALSdk *appLovinSDKInstance;
+//@property (nonatomic, strong) ALSdk *appLovinSDKInstance;
 @property (nonatomic, strong) ALAd *lastLoadedAd;
 @property (nonatomic, assign) BOOL adWasClicked;
 
@@ -43,7 +45,7 @@ NSString *const SPAppLovinSDKAppKey = @"SPAppLovinSDKAppKey";
     ALSdkSettings *alSDKSettings = [[ALSdkSettings alloc] init];
     alSDKSettings.isVerboseLogging = NO;
 
-    self.appLovinSDKInstance = [ALSdk sharedWithKey:self.network.apiKey settings:alSDKSettings];
+//    self.appLovinSDKInstance = [ALSdk sharedWithKey:self.network.apiKey settings:alSDKSettings];
     [self cacheInterstitial];
 
     return YES;
@@ -53,7 +55,7 @@ NSString *const SPAppLovinSDKAppKey = @"SPAppLovinSDKAppKey";
 {
     self.lastLoadedAd = nil;
 
-    ALAdService *adService = [self.appLovinSDKInstance adService];
+    ALAdService *adService = [[ALSdk sharedSdk] adService];
     [adService loadNextAd:[ALAdSize sizeInterstitial] andNotify:self];
 }
 
@@ -71,7 +73,7 @@ NSString *const SPAppLovinSDKAppKey = @"SPAppLovinSDKAppKey";
 {
     self.adWasClicked = NO;
 
-    ALInterstitialAd *interstitialAd = [[ALInterstitialAd alloc] initWithSdk:self.appLovinSDKInstance];
+    ALInterstitialAd *interstitialAd = [[ALInterstitialAd alloc] initWithSdk:[ALSdk sharedSdk]];
     [interstitialAd setAdDisplayDelegate:self];
     UIWindow *window = viewController.view.window;
     [interstitialAd showOver:window andRender:self.lastLoadedAd];
