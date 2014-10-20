@@ -1,9 +1,8 @@
 //
 //  SPFlurryAdapter.h
-//  SponsorPay iOS SDK
 //
-//  Created by David Davila on 6/17/13.
-// Copyright 2011-2013 SponsorPay. All rights reserved.
+//  Created on 6/17/13.
+//  Copyright (c) 2011-2014 Fyber. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

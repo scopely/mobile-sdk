@@ -1,9 +1,8 @@
 //
 //  SPFlurryAdapter.m
-//  SponsorPay iOS SDK
 //
-//  Created by David Davila on 6/17/13.
-// Copyright 2011-2013 SponsorPay. All rights reserved.
+//  Created on 6/17/13.
+//  Copyright (c) 2011-2014 Fyber. All rights reserved.
 //
 
 #import "SPFlurryRewardedVideoAdapter.h"
@@ -13,18 +12,17 @@
 #import "FlurryAds.h"
 static const NSInteger kFlurryNoAdsErrorCode = 104;
 static NSString *const SPFlurryVideoAdSpace = @"SPFlurryAdSpaceVideo";
-static NSString *const SPFlurryEnableTestAds = @"SPFlurryEnableTestAds";
 
-@interface SPFlurryAppCircleClipsRewardedVideoAdapter()
+@interface SPFlurryAppCircleClipsRewardedVideoAdapter ()
 
 @property (nonatomic, copy) NSString *videoAdsSpace;
 @property (copy) SPTPNValidationResultBlock validationResultsBlock;
 
-@property (copy) SPTPNVideoEventsHandlerBlock videoEventsCallback; // TODO: move up
-@property (assign, nonatomic) SPTPNProviderPlayingState playingState; // TODO: move up
+@property (copy) SPTPNVideoEventsHandlerBlock videoEventsCallback;
+@property (assign, nonatomic) SPTPNProviderPlayingState playingState;
 
 @property (assign) BOOL playingDidTimeout;
-@property (weak, readonly, nonatomic) UIWindow *mainWindow;
+
 
 @end
 
@@ -32,19 +30,13 @@ static NSString *const SPFlurryEnableTestAds = @"SPFlurryEnableTestAds";
 
 - (BOOL)startAdapterWithDictionary:(NSDictionary *)dict
 {
-    NSString *videoAdSpace = dict[SPFlurryVideoAdSpace];
-    if (!videoAdSpace) {
+    self.videoAdsSpace = dict[SPFlurryVideoAdSpace];
+    if (!self.videoAdsSpace) {
         SPLogError(@"Could not start %@ video Adapter. %@ empty or missing.", self.networkName, SPFlurryVideoAdSpace);
         return NO;
     }
 
-    self.videoAdsSpace = dict[SPFlurryVideoAdSpace];
-    [FlurryAds initialize:self.mainWindow.rootViewController];
-    NSNumber *testAdsEnabled = dict[SPFlurryEnableTestAds];
-    if (testAdsEnabled) {
-        [FlurryAds enableTestAds:[testAdsEnabled boolValue]];
-    }
-    [FlurryAds setAdDelegate:self];
+    [self.network.multicastDelegate addAdDelegate:self];
 
     return YES;
 }
@@ -69,18 +61,17 @@ static NSString *const SPFlurryEnableTestAds = @"SPFlurryEnableTestAds";
 - (void)fetchFlurryAd
 {
     [FlurryAds fetchAdForSpace:self.videoAdsSpace
-                         frame:self.mainWindow.rootViewController.view.frame
+                         frame:self.network.mainWindow.rootViewController.view.frame
                           size:FULLSCREEN];
 }
 
 - (void)startValidationTimeoutChecker
 {
-    void(^timeoutBlock)(void) = ^(void) {
+    void (^timeoutBlock)(void) = ^(void) {
         if (self.validating) {
             [self notifyOfValidationResult:SPTPNValidationTimeout];
         }
     };
-    // TODO: move up
     double delayInSeconds = SPTPNTimeoutInterval;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), timeoutBlock);
@@ -94,8 +85,8 @@ static NSString *const SPFlurryEnableTestAds = @"SPFlurryEnableTestAds";
     self.playingState = SPTPNProviderPlayingStateWaitingForPlayStart;
 
     // According to the documentation, the view is not used by the Flurry SDK, but setting to nil causes an exception
-    UIView *topView = [[[[UIApplication sharedApplication] keyWindow] subviews] lastObject];
-    [FlurryAds displayAdForSpace:self.videoAdsSpace onView:topView];
+    UIView *topView = [[self.network.mainWindow subviews] lastObject];
+    [FlurryAds displayAdForSpace:self.videoAdsSpace onView:topView viewControllerForPresentation:parentVC];
 
     [self startPlayingTimeoutChecker];
 }
@@ -104,7 +95,7 @@ static NSString *const SPFlurryEnableTestAds = @"SPFlurryEnableTestAds";
 {
     self.playingDidTimeout = NO;
 
-    void(^timeoutBlock)(void) = ^(void) {
+    void (^timeoutBlock)(void) = ^(void) {
         if (self.playingState == SPTPNProviderPlayingStateWaitingForPlayStart) {
             self.playingDidTimeout = YES;
             self.playingState = SPTPNProviderPlayingStateNotPlaying;
@@ -117,23 +108,18 @@ static NSString *const SPFlurryEnableTestAds = @"SPFlurryEnableTestAds";
     dispatch_after(popTime, dispatch_get_main_queue(), timeoutBlock);
 }
 
-- (UIWindow *)mainWindow
-{
-    return [UIApplication sharedApplication].windows[0];
-}
+#pragma mark - FlurryAdDelegate
 
-#pragma mark - FlurryAdDelegate protocol implementation
-
-- (void)spaceDidReceiveAd:(NSString*)adSpace
+- (void)spaceDidReceiveAd:(NSString *)adSpace
 {
-    if ([self isThisAdSpace:adSpace]){
-        if (self.validating){
+    if ([self isThisAdSpace:adSpace]) {
+        if (self.validating) {
             [self notifyOfValidationResult:SPTPNValidationSuccess];
         }
     }
 }
 
-- (void) spaceDidRender:(NSString *)space interstitial:(BOOL)interstitial
+- (void)spaceDidRender:(NSString *)space interstitial:(BOOL)interstitial
 {
     if ([self isThisAdSpace:space]) {
         self.playingState = SPTPNProviderPlayingStatePlaying;
@@ -157,26 +143,27 @@ static NSString *const SPFlurryEnableTestAds = @"SPFlurryEnableTestAds";
 - (BOOL)spaceShouldDisplay:(NSString *)adSpace interstitial:(BOOL)interstitial
 {
     if ([self isThisAdSpace:adSpace]) {
-        if (self.playingDidTimeout) {
-            return NO;
-        } else {
-            return YES;
-        }
+        return !self.playingDidTimeout;
     }
-
+    
     return YES;
 }
 
 - (void)spaceDidFailToRender:(NSString *)adSpace error:(NSError *)error
 {
+    if (![self isThisAdSpace:adSpace]) {
+        return;
+    }
     SPLogError(@"Flurry failed to render ad: %@", [error localizedDescription]);
-    if ([self isThisAdSpace:adSpace])
-        if (self.playingState != SPTPNProviderPlayingStateNotPlaying)
-            self.videoEventsCallback(self.networkName, SPTPNVideoEventError);
+    if (self.playingState != SPTPNProviderPlayingStateNotPlaying)
+        self.videoEventsCallback(self.networkName, SPTPNVideoEventError);
 }
 
 - (void)videoDidFinish:(NSString *)adSpace
 {
+    if (![self isThisAdSpace:adSpace]) {
+        return;
+    }
     if (self.playingState == SPTPNProviderPlayingStatePlaying) {
         self.playingState = SPTPNProviderPlayingStateNotPlaying;
         self.videoEventsCallback(self.networkName, SPTPNVideoEventFinished);
@@ -185,6 +172,9 @@ static NSString *const SPFlurryEnableTestAds = @"SPFlurryEnableTestAds";
 
 - (void)spaceDidDismiss:(NSString *)adSpace interstitial:(BOOL)interstitial
 {
+    if (![self isThisAdSpace:adSpace]) {
+        return;
+    }
     if (self.playingState == SPTPNProviderPlayingStatePlaying) {
         self.playingState = SPTPNProviderPlayingStateNotPlaying;
         self.videoEventsCallback(self.networkName, SPTPNVideoEventAborted);
