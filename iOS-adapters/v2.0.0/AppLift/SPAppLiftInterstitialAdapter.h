@@ -1,9 +1,9 @@
 //
 //  SPAppLiftInterstitialAdapter.h
-//  SponsorPayTestApp
+//  Fyber iOS SDK - AppLift Adapter v.2.2.1
 //
-//  Created by Daniel Barden on 20/11/13.
-//  Copyright (c) 2013 SponsorPay. All rights reserved.
+//  Created on 20/11/13.
+//  Copyright (c) 2013 Fyber. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -12,7 +12,7 @@
 
 @class SPAppLiftNetwork;
 
-@interface SPAppLiftInterstitialAdapter : NSObject <SPInterstitialNetworkAdapter, PlayAdsSDKDelegate>
+@interface SPAppLiftInterstitialAdapter : NSObject<SPInterstitialNetworkAdapter, PlayAdsSDKDelegate>
 
 @property (nonatomic, weak) SPAppLiftNetwork *network;
 
