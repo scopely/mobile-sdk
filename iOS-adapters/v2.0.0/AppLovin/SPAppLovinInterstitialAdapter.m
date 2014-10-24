@@ -20,7 +20,6 @@ NSString *const SPAppLovinSDKAppKey = @"SPAppLovinSDKAppKey";
 
 @property (nonatomic, weak, ) id<SPInterstitialNetworkAdapterDelegate> delegate;
 @property (nonatomic, strong) NSDictionary *parameters;
-//@property (nonatomic, strong) ALSdk *appLovinSDKInstance;
 @property (nonatomic, strong) ALAd *lastLoadedAd;
 @property (nonatomic, assign) BOOL adWasClicked;
 
@@ -44,10 +43,7 @@ NSString *const SPAppLovinSDKAppKey = @"SPAppLovinSDKAppKey";
 {
     ALSdkSettings *alSDKSettings = [[ALSdkSettings alloc] init];
     alSDKSettings.isVerboseLogging = NO;
-
-//    self.appLovinSDKInstance = [ALSdk sharedWithKey:self.network.apiKey settings:alSDKSettings];
     [self cacheInterstitial];
-
     return YES;
 }
 

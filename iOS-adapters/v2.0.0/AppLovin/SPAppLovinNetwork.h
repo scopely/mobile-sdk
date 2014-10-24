@@ -9,6 +9,4 @@
 
 @interface SPAppLovinNetwork : SPBaseNetwork
 
-@property (nonatomic, copy, readonly) NSString *apiKey;
-
 @end

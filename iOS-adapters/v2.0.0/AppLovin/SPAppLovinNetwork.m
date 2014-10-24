@@ -24,7 +24,6 @@ static const NSInteger SPAppLovinVersionPatch = 0;
 @interface SPAppLovinNetwork()
 @property (nonatomic, copy) NSString *name;
 @property (nonatomic, assign, readwrite) SPNetworkSupport supportedServices;
-@property (nonatomic, copy) NSString *apiKey;
 
 @property (nonatomic, strong) SPTPNGenericAdapter *rewardedVideoAdapter;
 @property (nonatomic, strong) id<SPInterstitialNetworkAdapter> interstitialAdapter;
@@ -68,18 +67,6 @@ static const NSInteger SPAppLovinVersionPatch = 0;
 
 - (BOOL)startSDK:(NSDictionary *)data
 {
-    self.apiKey = data[SPAppLovinSDKKey];
-    
-    if (!self.apiKey.length) {
-        SPLogError(@"Could not start %@ Provider. %@ empty or missing.", self.name, SPAppLovinSDKKey);
-        return NO;
-    }
-    
-    if (NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0) {
-        SPLogError(@"AppLovin only supports iOS 6 or later");
-        return NO;
-    }
-    
     return YES;
 }
 
