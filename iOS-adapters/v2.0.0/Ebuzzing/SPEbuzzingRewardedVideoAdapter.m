@@ -1,9 +1,8 @@
 //
 //  SPEbuzzingRewardedVideoAdapter.m
-//  SponsorPayTestApp
 //
-//  Created by Daniel Barden on 07/05/14.
-//  Copyright (c) 2014 SponsorPay. All rights reserved.
+//  Created on 07/05/14.
+//  Copyright (c) 2014 Fyber. All rights reserved.
 //
 #import <EbuzzingSDK/EbuzzingSDK.h>
 
@@ -12,13 +11,13 @@
 #import "SPLogger.h"
 
 static NSString *const SPRewardedVideoPlacementTag = @"SPEbuzzingRewardedVideoPlacementTag";
-@interface SPEbuzzingRewardedVideoAdapter() <EbzInterstitialDelegate>
+@interface SPEbuzzingRewardedVideoAdapter ()<EbzInterstitialDelegate>
 
-@property (copy, nonatomic) NSString *placementTag;
-@property (assign, nonatomic) BOOL videoAvailable;
-@property (assign, nonatomic) BOOL userRewarded;
-@property (strong, nonatomic) EbzInterstitial *ebuzzingInterstitial;
-@property (weak, nonatomic) UIViewController *parentViewController;
+@property (nonatomic, copy) NSString *placementTag;
+@property (nonatomic, assign) BOOL videoAvailable;
+@property (nonatomic, assign) BOOL userRewarded;
+@property (nonatomic, strong) EbzInterstitial *ebuzzingInterstitial;
+@property (nonatomic, weak) UIViewController *parentViewController;
 
 @end
 
