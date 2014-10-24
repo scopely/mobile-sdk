@@ -1,9 +1,9 @@
 //
-//  SPAppLiftProvider.m
-//  SponsorPay iOS SDK - AppLift Adapter v.2.1.0
+//  SPAppLiftNetwork.m
+//  Fyber iOS SDK - AppLift Adapter v.2.2.1
 //
-//  Created by Daniel Barden on 14/01/14.
-//  Copyright (c) 2014 SponsorPay. All rights reserved.
+//  Created on 14/01/14.
+//  Copyright (c) 2014 Fyber. All rights reserved.
 //
 
 #import "SPAppLiftNetwork.h"
@@ -19,8 +19,7 @@ static NSString *const SPAppLiftSecretToken = @"SPAppLiftSecretToken";
 // Adapter versioning - Remember to update the header
 static const NSInteger SPAppLiftVersionMajor = 2;
 static const NSInteger SPAppLiftVersionMinor = 2;
-static const NSInteger SPAppLiftVersionPatch = 0;
-
+static const NSInteger SPAppLiftVersionPatch = 1;
 
 @interface SPAppLiftNetwork ()
 
@@ -66,17 +65,17 @@ static const NSInteger SPAppLiftVersionPatch = 0;
         SPLogError(@"Could not start %@ Provider. %@ or %@ empty or missing.", self.name, SPAppLiftAppId, SPAppLiftSecretToken);
         return NO;
     }
+    
+    if( NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0){
+        SPLogError(@"AppLift only supports iOS 6 or later");
+        return NO;
+    }
 
-    NSAssert(
-    [self.interstitialAdapter isKindOfClass:
-                              [SPAppLiftInterstitialAdapter class]],
-    @"Expecting a valid interstitial adapter kind of class %@.",
-    NSStringFromClass([SPAppLiftInterstitialAdapter class]));
+    NSAssert([self.interstitialAdapter isKindOfClass:[SPAppLiftInterstitialAdapter class]],
+             @"Expecting a valid interstitial adapter kind of class %@.",
+             NSStringFromClass([SPAppLiftInterstitialAdapter class]));
 
-    [PlayAdsSDK
-    startWithAppID:appId
-       secretToken:secretToken
-          delegate:self.interstitialAdapter];
+    [PlayAdsSDK startWithAppID:appId secretToken:secretToken delegate:self.interstitialAdapter];
 
     return YES;
 }

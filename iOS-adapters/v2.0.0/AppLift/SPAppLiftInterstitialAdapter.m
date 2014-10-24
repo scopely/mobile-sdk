@@ -1,25 +1,22 @@
 //
 //  SPAppLiftInterstitialAdapter.m
-//  SponsorPayTestApp
+//  Fyber iOS SDK - AppLift Adapter v.2.2.1
 //
-//  Created by Daniel Barden on 20/11/13.
-//  Copyright (c) 2013 SponsorPay. All rights reserved.
+//  Created on 20/11/13.
+//  Copyright (c) 2013 Fyber. All rights reserved.
 //
 
 #import "SPAppLiftInterstitialAdapter.h"
 #import "SPAppLiftNetwork.h"
 #import "SPLogger.h"
 
-//TODO: Define this macro inside SPLogger
+// TODO: Define this macro inside SPLogger
 #define LogInvocation NSLog(@"%s", __PRETTY_FUNCTION__)
 
-@interface SPAppLiftInterstitialAdapter() {
-    BOOL _adLoaded;
-}
+@interface SPAppLiftInterstitialAdapter ()
 
-@property (weak, nonatomic) id<SPInterstitialNetworkAdapterDelegate> delegate;
-@property (nonatomic, copy) NSString *appId;
-@property (nonatomic, copy) NSString *securityToken;
+@property (nonatomic, weak) id<SPInterstitialNetworkAdapterDelegate> delegate;
+@property (nonatomic, assign) BOOL isInterstitialAvailable;
 
 @end
 
@@ -38,20 +35,14 @@
     return [self.network name];
 }
 
-- (void)setParameters:(NSDictionary *)parameters
-{
-    self.appId = parameters[@"appId"];
-    self.securityToken = parameters[@"securityToken"];
-}
-
 - (BOOL)canShowInterstitial
 {
     LogInvocation;
-    if (!_adLoaded) {
+    if (!self.isInterstitialAvailable) {
         [PlayAdsSDK cache];
     }
 
-    return _adLoaded;
+    return self.isInterstitialAvailable;
 }
 
 - (void)showInterstitialFromViewController:(UIViewController *)viewController
@@ -69,17 +60,17 @@
 - (void)playAdsAdReady
 {
     LogInvocation;
-    _adLoaded = YES;
+    self.isInterstitialAvailable = YES;
 }
 
 - (void)playAdsAdDidShow
 {
     LogInvocation;
-    _adLoaded = NO;
+    self.isInterstitialAvailable = NO;
     [self.delegate adapterDidShowInterstitial:self];
 }
 
-- (void)playAdsAdDidFailWithError:(NSError*)error
+- (void)playAdsAdDidFailWithError:(NSError *)error
 {
     LogInvocation;
     [self.delegate adapter:self didFailWithError:error];

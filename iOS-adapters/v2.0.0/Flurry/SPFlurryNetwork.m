@@ -1,22 +1,23 @@
 //
 //  SPProviderFlurry.m
-//  SponsorPay iOS SDK - Flurry Adapter v.2.1.0
+//  Fyber iOS SDK - Flurry Adapter v.2.2.0
 //
-//  Created by Daniel Barden on 02/01/14.
-//  Copyright (c) 2014 SponsorPay. All rights reserved.
+//  Created on 02/01/14.
+//  Copyright (c) 2014 Fyber. All rights reserved.
 //
 
 #import "SponsorPaySDK.h"
 
 #import "SPFlurryNetwork.h"
-#import "SPFlurryRewardedVideoAdapter.h"
 #import "SPLogger.h"
 #import "Flurry.h"
 #import "SPSemanticVersion.h"
+#import "SPTPNGenericAdapter.h"
 
 static NSString *const SPProviderName = @"SPProviderName";
 static NSString *const SPFlurryApiKey = @"SPFlurryApiKey";
 static NSString *const SPFlurryLogLevel = @"SPFlurryLogLevel";
+static NSString *const SPFlurryEnableTestAds = @"SPFlurryEnableTestAds";
 
 static NSString *const SPFlurryLogLevelNone = @"none";
 static NSString *const SPFlurryLogLevelCriticalOnly = @"criticalOnly";
@@ -25,18 +26,19 @@ static NSString *const SPFlurryLogLevelAll = @"all";
 
 // Adapter versioning - Remember to update the header
 static const NSInteger SPFlurryVersionMajor = 2;
-static const NSInteger SPFlurryVersionMinor = 1;
+static const NSInteger SPFlurryVersionMinor = 2;
 static const NSInteger SPFlurryVersionPatch = 0;
+
+
+static NSString *const SPFlurryRewardedVideoAdapterClassName = @"SPFlurryAppCircleClipsRewardedVideoAdapter";
+static NSString *const SPFlurryInterstitialAdapterClassName = @"SPFlurryAppCircleClipsInterstitialAdapter";
 
 @interface SPFlurryAppCircleClipsNetwork ()
 
 
 @property (nonatomic, assign, readwrite) SPNetworkSupport supportedServices;
-
-@property (nonatomic, strong, readwrite) SPFlurryAppCircleClipsRewardedVideoAdapter *rewardedVideoAdapter;
-@property (nonatomic, copy, readwrite) NSString *name;
-
-- (FlurryLogLevel)flurryLogLevel:(NSString *)logLevel;
+@property (nonatomic, strong) id<SPTPNVideoAdapter> rewardedVideoAdapter;
+@property (nonatomic, strong) id<SPInterstitialNetworkAdapter> interstitialAdapter;
 
 @end
 
@@ -44,7 +46,8 @@ static const NSInteger SPFlurryVersionPatch = 0;
 
 @synthesize supportedServices;
 @synthesize rewardedVideoAdapter;
-@synthesize name;
+@synthesize interstitialAdapter;
+@synthesize multicastDelegate = _multicastDelegate;
 
 #pragma mark - Class Methods
 
@@ -62,28 +65,38 @@ static const NSInteger SPFlurryVersionPatch = 0;
     self = [super init];
 
     if (self) {
-        self.rewardedVideoAdapter = [[SPFlurryAppCircleClipsRewardedVideoAdapter alloc] init];
+        Class RewardedVideoAdapterClass = NSClassFromString(SPFlurryRewardedVideoAdapterClassName);
+        if (RewardedVideoAdapterClass) {
+            self.rewardedVideoAdapter = [[RewardedVideoAdapterClass alloc] init];
+        }
+
+        Class InterstitialAdapterClass = NSClassFromString(SPFlurryInterstitialAdapterClassName);
+        if (InterstitialAdapterClass) {
+            self.interstitialAdapter = [[InterstitialAdapterClass alloc] init];
+        }
     }
 
     return self;
 }
 
-
 - (BOOL)startSDK:(NSDictionary *)data
 {
-//    NSString *apiKey = [self valueFromKeychain:SPFlurryApiKey];
     NSString *apiKey = data[SPFlurryApiKey];
     if (!apiKey.length) {
         SPLogError(@"Could not start %@ Provider. %@ empty or missing.", self.name, SPFlurryApiKey);
         return NO;
     }
     NSString *logLevel = data[SPFlurryLogLevel];
-    if (logLevel) {
+    if (logLevel.length) {
         [Flurry setLogLevel:[self flurryLogLevel:logLevel]];
     }
     [Flurry startSession:apiKey];
     [Flurry addOrigin:@"SponsorPayIOS" withVersion:[SponsorPaySDK versionString]];
-
+    
+    BOOL testAdsEnabled = [(NSNumber *)data[SPFlurryEnableTestAds] boolValue];
+    [FlurryAds initialize:self.mainWindow.rootViewController];
+    [FlurryAds enableTestAds:testAdsEnabled];
+    [FlurryAds setAdDelegate:self.multicastDelegate];
     return YES;
 }
 
@@ -101,6 +114,20 @@ static const NSInteger SPFlurryVersionPatch = 0;
         return FlurryLogLevelAll;
     }
     return FlurryLogLevelCriticalOnly;
+}
+
+- (SPFlurryAdsMulticastDelegate *)multicastDelegate
+{
+    if (!_multicastDelegate) {
+        _multicastDelegate = [[SPFlurryAdsMulticastDelegate alloc] init];
+    }
+
+    return _multicastDelegate;
+}
+
+- (UIWindow *)mainWindow
+{
+    return [UIApplication sharedApplication].windows[0];
 }
 
 @end
