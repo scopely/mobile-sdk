@@ -1,9 +1,8 @@
 //
 //  SPAdMobNetwork.m
-//  SponsorPayTestApp
 //
-//  Created by Daniel Barden on 01/04/14.
-//  Copyright (c) 2014 SponsorPay. All rights reserved.
+//  Created on 01/04/14.
+//  Copyright (c) 2014 Fyber. All rights reserved.
 //
 
 #import "GADRequest.h"
@@ -17,13 +16,13 @@
 // Adapter versioning - Remember to update the header
 static const NSInteger SPAdMobVersionMajor = 2;
 static const NSInteger SPAdMobVersionMinor = 0;
-static const NSInteger SPAdMobVersionPatch = 0;
+static const NSInteger SPAdMobVersionPatch = 1;
 
 static NSString *const SPAdMobCoppaCompliance = @"SPAdMobIsCOPPACompliant";
 
 static NSString *const SPAdMobTestDevices = @"SPAdMobTestDevices";
 
-@interface SPAdMobNetwork()
+@interface SPAdMobNetwork ()
 
 @end
 
@@ -31,10 +30,15 @@ static NSString *const SPAdMobTestDevices = @"SPAdMobTestDevices";
 
 @synthesize interstitialAdapter = _interstitialAdapter;
 
+#pragma mark - Class Methods
+
 + (SPSemanticVersion *)adapterVersion
 {
     return [SPSemanticVersion versionWithMajor:SPAdMobVersionMajor minor:SPAdMobVersionMinor patch:SPAdMobVersionPatch];
 }
+
+
+#pragma mark - Initialization
 
 - (id)init
 {
