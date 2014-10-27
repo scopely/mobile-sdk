@@ -1,9 +1,8 @@
 //
 //  SPAdMobInterstitialAdapter.m
-//  SponsorPayTestApp
 //
-//  Created by Daniel Barden on 01/04/14.
-//  Copyright (c) 2014 SponsorPay. All rights reserved.
+//  Created on 01/04/14.
+//  Copyright (c) 2014 Fyber. All rights reserved.
 //
 
 #import "SPAdMobInterstitialAdapter.h"
@@ -15,15 +14,15 @@
 
 static NSString *const SPAdMobAdUnitId = @"SPAdMobInterstitialAdUnitId";
 
-@interface SPAdMobInterstitialAdapter() <GADInterstitialDelegate>
+@interface SPAdMobInterstitialAdapter ()<GADInterstitialDelegate>
 
-@property (weak, nonatomic) id<SPInterstitialNetworkAdapterDelegate> delegate;
-@property (copy, nonatomic) NSString *adUnitId;
+@property (nonatomic, weak) id<SPInterstitialNetworkAdapterDelegate> delegate;
+@property (nonatomic, copy) NSString *adUnitId;
 
-@property (strong, nonatomic) GADInterstitial *interstitial;
+@property (nonatomic, strong) GADInterstitial *interstitial;
 
-@property (assign, nonatomic) BOOL *isInterstitialAvailable;
-@property (assign, nonatomic) BOOL *userClickedOnAd;
+@property (nonatomic, assign) BOOL isInterstitialAvailable;
+@property (nonatomic, assign) BOOL userClickedOnAd;
 
 @end
 
