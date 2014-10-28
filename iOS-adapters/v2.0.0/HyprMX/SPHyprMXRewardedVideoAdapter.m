@@ -261,6 +261,7 @@ static NSString *NSStringFromSPHyprMXRewardedVideoAdapterState(SPHyprMXRewardedV
         if(completed)
         {
             [self notifyVideoDidFinish];
+            [self notifyVideoDidClose];
         }
         else
         {
