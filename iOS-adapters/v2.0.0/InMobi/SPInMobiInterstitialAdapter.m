@@ -1,9 +1,7 @@
 //
 //  SPInMobiInterstitialAdapter.m
-//  SponsorPayTestApp
 //
-//  Created by Daniel Barden on 21/01/14.
-//  Copyright (c) 2014 SponsorPay. All rights reserved.
+//  Copyright (c) 2014 Fyber. All rights reserved.
 //
 
 #import "SPInMobiInterstitialAdapter.h"
@@ -11,22 +9,27 @@
 #import "IMInterstitial.h"
 #import "IMInterstitialDelegate.h"
 #import "SPLogger.h"
+#import "SponsorPaySDK.h"
+
+static NSString *const kInMobiThirdPartyParameter  = @"tp";
+static NSString *const kInMobiThirdPartyVersionParameter  = @"tp-ver";
+static NSString *const kInMobiThirdPartyParameterValue  = @"c_sponsorpay";
 
 @interface SPInMobiInterstitialAdapter() <IMInterstitialDelegate>
-@property (copy, nonatomic) NSString *networkName;
-@property (weak, nonatomic) id<SPInterstitialNetworkAdapterDelegate> delegate;
+@property (nonatomic, copy) NSString *networkName;
+@property (nonatomic, weak) id<SPInterstitialNetworkAdapterDelegate> delegate;
 
-@property (assign, nonatomic, getter = isInterstitialAvailable) BOOL interstitialAvailable;
-@property (strong, nonatomic) IMInterstitial *interstitial;
+@property (nonatomic, assign, getter=isInterstitialAvailable) BOOL interstitialAvailable;
+@property (nonatomic, strong) IMInterstitial *interstitial;
 
-@property (assign, nonatomic) BOOL userClickedAd;
+@property (nonatomic, assign) BOOL userClickedAd;
 
 // In cases when InMobi uses StoreKit, it uses the current interstitial as the delegate.
 // But to maximize the fill rate, we are requesting another interstitial when the current one
 // is dismissed, which causes the delegate of StoreKit to be niled and the user trapped.
 // This property will hold a reference to the last interstitial provided, since the API
 // does not provide any clue about what happening regarding StoreKit
-@property (strong, nonatomic) IMInterstitial *dismissedInterstitial;
+@property (nonatomic, strong) IMInterstitial *dismissedInterstitial;
 
 @end
 
@@ -68,6 +71,10 @@
     SPLogDebug(@"%s: Fetching interstitial from InMobi", __PRETTY_FUNCTION__);
     IMInterstitial *interstitial = [[IMInterstitial alloc] initWithAppId:self.network.appId];
     interstitial.delegate = self;
+    
+    NSDictionary *additionalParameters = @{kInMobiThirdPartyParameter: kInMobiThirdPartyParameterValue, kInMobiThirdPartyVersionParameter: [SponsorPaySDK versionString]};
+    
+    [interstitial setAdditionaParameters:additionalParameters];
     [interstitial loadInterstitial];
     self.interstitial = interstitial;
 }
@@ -76,11 +83,10 @@
 - (void)interstitialDidReceiveAd:(IMInterstitial *)ad
 {
     self.interstitialAvailable = YES;
-    SPLogInfo(@"%s: Received Interstitial from InMobi", __PRETTY_FUNCTION__);
+    SPLogDebug(@"%s: Received Interstitial from InMobi", __PRETTY_FUNCTION__);
 }
 
-- (void)interstitial:(IMInterstitial *)ad
-        didFailToReceiveAdWithError:(IMError *)error
+- (void)interstitial:(IMInterstitial *)ad didFailToReceiveAdWithError:(IMError *)error
 {
     self.interstitialAvailable = NO;
     ad.delegate = nil;

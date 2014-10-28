@@ -1,9 +1,7 @@
 //
 //  SPInMobiInterstitialAdapter.h
-//  SponsorPayTestApp
 //
-//  Created by Daniel Barden on 21/01/14.
-//  Copyright (c) 2014 SponsorPay. All rights reserved.
+//  Copyright (c) 2014 Fyber. All rights reserved.
 //
 
 #import "SPInterstitialNetworkAdapter.h"
