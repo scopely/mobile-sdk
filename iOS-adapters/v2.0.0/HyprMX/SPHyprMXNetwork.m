@@ -1,38 +1,32 @@
 //
 //  SPHyprMXNetwork.m
-//  SponsorPayTestApp
 //
-//  Created by Pierre Bongen on 22.05.14.
-//  Copyright (c) 2014 SponsorPay. All rights reserved.
+//  Created on 22.05.14.
+//  Copyright (c) 2014 Fyber. All rights reserved.
 //
-
-// Adapter versioning - Remember to update the header
 
 #import "SPHyprMXNetwork.h"
-
-// SponsorPay SDK.
-#import "SPHyprMXRewardedVideoAdapter.h"
 #import "SPLogger.h"
 #import "SPRandomID.h"
 #import "SPSemanticVersion.h"
 #import "SPTPNGenericAdapter.h"
-
+#import "SPSystemVersionChecker.h"
 #import <HyprMX/HyprMX.h>
 
 
 static const NSInteger SPHyprMXVersionMajor = 2;
-static const NSInteger SPHyprMXVersionMinor = 0;
-static const NSInteger SPHyprMXVersionPatch = 1;
+static const NSInteger SPHyprMXVersionMinor = 1;
+static const NSInteger SPHyprMXVersionPatch = 0;
 
 static NSString *const SPHyprMXDistributorID = @"SPHyprMXDistributorID";
 static NSString *const SPHyprMXPropertyID = @"SPHyprMXPropertyID";
-
 static NSString *const SPHyprMXUserID = @"SPHyprMXUserID";
+
+static NSString *const SPRewardedVideoAdapterClassName = @"SPHyprMXRewardedVideoAdapter";
 
 
 @interface SPHyprMXNetwork ()
 
-@property (nonatomic, strong) SPHyprMXRewardedVideoAdapter *HyprMXRewardedVideoAdapter;
 @property (nonatomic, copy, readonly) NSString *HyprMXUserID;
 @property (nonatomic, strong) id<SPTPNVideoAdapter> rewardedVideoAdapter;
 
@@ -41,7 +35,6 @@ static NSString *const SPHyprMXUserID = @"SPHyprMXUserID";
 
 @implementation SPHyprMXNetwork
 
-@synthesize HyprMXRewardedVideoAdapter = HyprMXRewardedVideoAdapter;
 @synthesize rewardedVideoAdapter = _rewardedVideoAdapter;
 
 #pragma mark - Class Methods
@@ -64,12 +57,12 @@ static NSString *const SPHyprMXUserID = @"SPHyprMXUserID";
     NSString *result = [defaults objectForKey:SPHyprMXUserID];
 
     if (![result isKindOfClass:[NSString class]] || ![result length]) {
-        SPLogDebug(@"[HYPR] Creating new user ID.");
+        SPLogDebug(@"[HyprMX] Creating new user ID.");
         result = [SPRandomID randomIDString];
 
         [defaults setObject:result forKey:SPHyprMXUserID];
     } else {
-        SPLogDebug(@"[HYPR] Using existing user ID.");
+        SPLogDebug(@"[HyprMX] Using existing user ID.");
     }
 
     return result;
@@ -80,15 +73,22 @@ static NSString *const SPHyprMXUserID = @"SPHyprMXUserID";
 
 - (BOOL)startSDK:(NSDictionary *)data
 {
+    // The HyprMX Mobile SDK supports iOS 6 or higher. It will not return ads on iOS 5.
+    if (![SPSystemVersionChecker runningOniOS6OrNewer]) {
+        
+        SPLogError(@"[HyprMX] Could not start %@ Provider. The HyprMX Mobile SDK supports iOS 6 or higher.", self.name);
+        return NO;
+    }
+    
     if (![data isKindOfClass:[NSDictionary class]]) {
-        SPLogError(@"data parameter is nil or not a dictionary.");
+        SPLogError(@"[HyprMX] data parameter is nil or not a dictionary.");
         return NO;
     }
 
     NSString *const distributorID = data[SPHyprMXDistributorID];
 
     if (![distributorID isKindOfClass:[NSString class]] || ![distributorID length]) {
-        SPLogError(@"No or empty value given for key %@.", SPHyprMXDistributorID);
+        SPLogError(@"[HyprMX] No or empty value given for key %@.", SPHyprMXDistributorID);
 
         return NO;
     }
@@ -97,7 +97,7 @@ static NSString *const SPHyprMXUserID = @"SPHyprMXUserID";
     NSString *const propertyID = data[SPHyprMXPropertyID];
 
     if (![propertyID isKindOfClass:[NSString class]] || ![propertyID length]) {
-        SPLogError(@"No or empty value given for key %@.", SPHyprMXPropertyID);
+        SPLogError(@"[HyprMX] No or empty value given for key %@.", SPHyprMXPropertyID);
 
         return NO;
     }
@@ -110,13 +110,18 @@ static NSString *const SPHyprMXUserID = @"SPHyprMXUserID";
 
 - (void)startRewardedVideoAdapter:(NSDictionary *)data
 {
-    self.HyprMXRewardedVideoAdapter = [SPHyprMXRewardedVideoAdapter new];
-
-    SPTPNGenericAdapter *const videoAdapterWrapper = [[SPTPNGenericAdapter alloc] initWithVideoNetworkAdapter:self.HyprMXRewardedVideoAdapter];
-
-    self.HyprMXRewardedVideoAdapter.delegate = videoAdapterWrapper;
-    self.rewardedVideoAdapter = videoAdapterWrapper;
-
+    Class RewardedVideoAdapterClass = NSClassFromString(SPRewardedVideoAdapterClassName);
+    if (!RewardedVideoAdapterClass) {
+        return;
+    }
+    
+    id<SPRewardedVideoNetworkAdapter> rewardedVideoAdapter = [RewardedVideoAdapterClass new];
+    
+    SPTPNGenericAdapter *rewardedVideoAdapterWrapper = [[SPTPNGenericAdapter alloc] initWithVideoNetworkAdapter:rewardedVideoAdapter];
+    rewardedVideoAdapter.delegate = rewardedVideoAdapterWrapper;
+    
+    self.rewardedVideoAdapter = rewardedVideoAdapterWrapper;
+    
     [super startRewardedVideoAdapter:data];
 }
 
