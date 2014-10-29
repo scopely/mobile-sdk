@@ -1,8 +1,7 @@
 //
-//  SponsorPay iOS SDK - InMobi Adapter v.2.0.0
+//  SPInMobiNetwork.h
 //
-//  Created by Daniel Barden on 21/01/14.
-//  Copyright (c) 2014 SponsorPay. All rights reserved.
+//  Copyright (c) 2014 Fyber. All rights reserved.
 //
 
 #import "SPBaseNetwork.h"

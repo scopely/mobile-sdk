@@ -1,9 +1,8 @@
 //
 //  SPInMobiNetwork.m
-//  SponsorPay iOS SDK - InMobi Adapter v.2.0.0
+//  Fyber iOS SDK - InMobi Adapter v.2.0.2
 //
-//  Created by Daniel Barden on 21/01/14.
-//  Copyright (c) 2014 SponsorPay. All rights reserved.
+//  Copyright (c) 2014 Fyber. All rights reserved.
 //
 
 #import "SPInMobiNetwork.h"
@@ -16,7 +15,7 @@ NSString *const SPInMobiAppId = @"SPInMobiAppId";
 // Adapter versioning - Remember to update the header
 static const NSInteger SPInMobiVersionMajor = 2;
 static const NSInteger SPInMobiVersionMinor = 0;
-static const NSInteger SPInMobiVersionPatch = 0;
+static const NSInteger SPInMobiVersionPatch = 2;
 
 @interface SPInMobiNetwork()
 
@@ -45,12 +44,12 @@ static const NSInteger SPInMobiVersionPatch = 0;
 
 - (BOOL)startSDK:(NSDictionary *)data
 {
-    NSString *appId = data[SPInMobiAppId];
-    if (!appId.length) {
+    self.appId = data[SPInMobiAppId];
+    if (!self.appId.length) {
         SPLogError(@"Could not start %@ network. %@ empty or missing.", self.name, SPInMobiAppId);
         return NO;
     }
-    self.appId = appId;
+    
     [InMobi initialize:self.appId];
 
     return YES;
