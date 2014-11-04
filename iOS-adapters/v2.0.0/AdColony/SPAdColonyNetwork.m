@@ -1,12 +1,9 @@
 //
 //  SPAdColonyNetwork.m
-//  SponsorPayTestApp
 //
-//  Created by Daniel Barden on 07/05/14.
-//  Copyright (c) 2014 SponsorPay. All rights reserved.
+//  Created on 07/05/14.
+//  Copyright (c) 2014 Fyber. All rights reserved.
 //
-
-// Adapter versioning - Remember to update the header
 
 #import "SPAdColonyNetwork.h"
 #import "SPTPNGenericAdapter.h"
@@ -18,7 +15,7 @@
 
 static const NSInteger SPAdColonyVersionMajor = 2;
 static const NSInteger SPAdColonyVersionMinor = 1;
-static const NSInteger SPAdColonyVersionPatch = 0;
+static const NSInteger SPAdColonyVersionPatch = 1;
 
 static NSString *const SPAdColonyAppId = @"SPAdColonyAppId";
 NSString *const SPAdColonyV4VCZoneId = @"SPAdColonyV4VCZoneId";
@@ -29,9 +26,9 @@ static NSString *const SPRewardedVideoAdapterClassName = @"SPAdColonyRewardedVid
 
 @interface SPAdColonyNetwork()
 
-@property (strong, nonatomic) SPTPNGenericAdapter *rewardedVideoAdapter;
-@property (weak, nonatomic) id<SPRewardedVideoNetworkAdapter, AdColonyDelegate> rewardedVideoNetworkAdapter;
-@property (strong, nonatomic) id<SPInterstitialNetworkAdapter> interstitialAdapter;
+@property (nonatomic, strong) SPTPNGenericAdapter *rewardedVideoAdapter;
+@property (nonatomic, weak) id<SPRewardedVideoNetworkAdapter, AdColonyDelegate> rewardedVideoNetworkAdapter;
+@property (nonatomic, strong) id<SPInterstitialNetworkAdapter> interstitialAdapter;
 
 @end
 
