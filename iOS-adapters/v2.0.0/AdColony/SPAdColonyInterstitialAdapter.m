@@ -1,9 +1,8 @@
 //
 //  SPAdColonyInterstitialAdapter.m
-//  SponsorPayTestApp
 //
-//  Created by Paweł Kowalczyk on 30.06.2014.
-//  Copyright (c) 2014 SponsorPay. All rights reserved.
+//  Created on 30.06.2014.
+//  Copyright (c) 2014 Fyber. All rights reserved.
 //
 
 #import "SPAdColonyInterstitialAdapter.h"
@@ -15,10 +14,10 @@
 
 @interface SPAdColonyInterstitialAdapter()
 
-@property (weak, nonatomic) id<SPInterstitialNetworkAdapterDelegate> delegate;
+@property (nonatomic, weak) id<SPInterstitialNetworkAdapterDelegate> delegate;
 
-@property (copy, nonatomic) NSString *zoneId;
-@property (assign, nonatomic, readonly) BOOL isInterstitialAvailable;
+@property (nonatomic, copy) NSString *zoneId;
+@property (nonatomic, assign, readonly) BOOL isInterstitialAvailable;
 
 @end
 

@@ -1,9 +1,8 @@
 //
 //  SPAdColonyRewardedVideoAdapter.m
-//  SponsorPayTestApp
 //
-//  Created by Daniel Barden on 07/05/14.
-//  Copyright (c) 2014 SponsorPay. All rights reserved.
+//  Created on 07/05/14.
+//  Copyright (c) 2014 Fyber. All rights reserved.
 //
 
 #import "SPAdColonyRewardedVideoAdapter.h"
@@ -21,11 +20,11 @@ typedef NS_ENUM(NSInteger, SPAdColonyRewardState) {
 
 @interface SPAdColonyRewardedVideoAdapter ()
 
-@property (copy, nonatomic) NSString *zoneId;
+@property (nonatomic, copy) NSString *zoneId;
 
-@property (assign, nonatomic) BOOL videoAvailable;
-@property (assign, nonatomic) BOOL videoClosed;
-@property (assign, nonatomic) SPAdColonyRewardState userRewarded;
+@property (nonatomic, assign) BOOL videoAvailable;
+@property (nonatomic, assign) BOOL videoClosed;
+@property (nonatomic, assign) SPAdColonyRewardState userRewarded;
 
 @end
 
