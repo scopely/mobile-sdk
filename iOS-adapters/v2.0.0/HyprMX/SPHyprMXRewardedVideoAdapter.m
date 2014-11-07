@@ -10,7 +10,9 @@
 #import "SPLogger.h"
 #import <HyprMX/HyprMX.h>
 
-#define LogInvocation SPLogDebug(@"[HyprMX] %s", __PRETTY_FUNCTION__)
+#ifndef LogInvocation
+#define LogInvocation SPLogDebug(@"%s", __PRETTY_FUNCTION__)
+#endif
 
 @interface SPHyprMXRewardedVideoAdapter()
 
