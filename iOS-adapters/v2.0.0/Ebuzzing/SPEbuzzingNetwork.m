@@ -1,9 +1,8 @@
 //
 //  SPEbuzzingNetwork.m
-//  SponsorPayTestApp
 //
-//  Created by Daniel Barden on 07/05/14.
-//  Copyright (c) 2014 SponsorPay. All rights reserved.
+//  Created on 07/05/14.
+//  Copyright (c) 2014 Fyber. All rights reserved.
 //
 
 // Adapter versioning - Remember to update the header
@@ -19,9 +18,9 @@ static const NSInteger SPEbuzzingVersionPatch = 0;
 
 static NSString *const SPRewardedVideoAdapterClassName = @"SPEbuzzingRewardedVideoAdapter";
 
-@interface SPEbuzzingNetwork()
+@interface SPEbuzzingNetwork ()
 
-@property (strong, nonatomic) SPTPNGenericAdapter *rewardedVideoAdapter;
+@property (nonatomic, strong) SPTPNGenericAdapter *rewardedVideoAdapter;
 
 @end
 
@@ -72,7 +71,6 @@ static NSString *const SPRewardedVideoAdapterClassName = @"SPEbuzzingRewardedVid
     self.rewardedVideoAdapter = eBuzzingLovinRewardedVideoAdapterWrapper;
 
     [super startRewardedVideoAdapter:data];
-
 }
 
 @end

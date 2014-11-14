@@ -1,6 +1,5 @@
 //
-//  SPUnityAdsAdapter.m
-//  SponsorPaySample
+//  SPUnityAdsRewardedVideoAdapter.m
 //
 //  Created on 10/1/13.
 //  Copyright (c) 2013 Fyber. All rights reserved.
@@ -15,8 +14,8 @@ static NSString *const SPUnityAdsRewardedVideoZoneId = @"SPUnityAdsRewardedVideo
 
 @interface SPUnityAdsRewardedVideoAdapter ()
 
-@property (assign, nonatomic) BOOL videoFullyWatched;
-@property (strong, nonatomic) NSMutableDictionary *showOptions;
+@property (nonatomic, assign) BOOL videoFullyWatched;
+@property (nonatomic, strong) NSMutableDictionary *showOptions;
 @property (nonatomic, copy) NSString *zoneId;
 
 @end
@@ -41,7 +40,7 @@ static NSString *const SPUnityAdsRewardedVideoZoneId = @"SPUnityAdsRewardedVideo
         kUnityAdsOptionVideoUsesDeviceOrientation: @YES,
         kUnityAdsOptionNoOfferscreenKey: @YES
     }];
-    
+
     // It seems that kUnityAdsOptionNoOfferscreenKey option doesn't work anymore, but it wasn't removed from code, because this parameter is still available in UnityAds API.
     if (dict[SPUnityAdsShowOffers]) {
         BOOL hideOffers = ![dict[SPUnityAdsShowOffers] boolValue];
@@ -67,6 +66,10 @@ static NSString *const SPUnityAdsRewardedVideoZoneId = @"SPUnityAdsRewardedVideo
 
     BOOL success = [[UnityAds sharedInstance] show:self.showOptions];
     SPLogDebug(@"%@", success ? @"Showing Unity Rewarded Video" : @"Error showing Unity Rewarded Video");
+    if (!success) {
+        // TODO provide error with the description
+        [self.delegate adapter:self didFailWithError:nil];
+    }
 }
 
 #pragma mark - UnityAdsDelegate selectors
