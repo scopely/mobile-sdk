@@ -1,113 +1,78 @@
 //
-//  SPUnityAdsRewardedVideoAdapter.m
+//  SPHyprMXRewardedVideoAdapter.m
 //
-//  Created on 10/1/13.
-//  Copyright (c) 2013 Fyber. All rights reserved.
+//  Created on 22.05.14.
+//  Copyright (c) 2014 Fyber. All rights reserved.
 //
 
-#import "SPUnityAdsRewardedVideoAdapter.h"
-#import "SPUnityAdsNetwork.h"
+#import "SPHyprMXRewardedVideoAdapter.h"
+#import "SPHyprMXNetwork.h"
 #import "SPLogger.h"
+#import "HyprMX.h"
 
-static NSString *const SPUnityAdsShowOffers = @"SPUnityAdsShowOffers";
-static NSString *const SPUnityAdsRewardedVideoZoneId = @"SPUnityAdsRewardedVideoZoneId";
+#ifndef LogInvocation
+#define LogInvocation SPLogDebug(@"%s", __PRETTY_FUNCTION__)
+#endif
 
-@interface SPUnityAdsRewardedVideoAdapter ()
+@interface SPHyprMXRewardedVideoAdapter()
 
-@property (nonatomic, assign) BOOL videoFullyWatched;
-@property (nonatomic, strong) NSMutableDictionary *showOptions;
-@property (nonatomic, copy) NSString *zoneId;
+@property (nonatomic, assign, getter = isOfferReady) BOOL offerReady;
 
 @end
 
-@implementation SPUnityAdsRewardedVideoAdapter
+@implementation SPHyprMXRewardedVideoAdapter
 
-@synthesize delegate = _delegate;
+@synthesize delegate;
 
 - (NSString *)networkName
 {
     return self.network.name;
 }
 
-- (BOOL)startAdapterWithDictionary:(NSDictionary *)dict
-{
-    self.zoneId = dict[SPUnityAdsRewardedVideoZoneId];
-    if (self.zoneId.length == 0) {
-        self.zoneId = nil;
-    }
-    
-    self.showOptions = [[NSMutableDictionary alloc] initWithDictionary:@{
-                                                                         kUnityAdsOptionVideoUsesDeviceOrientation: @YES,
-                                                                         kUnityAdsOptionNoOfferscreenKey: @YES
-                                                                         }];
-    
-    // It seems that kUnityAdsOptionNoOfferscreenKey option doesn't work anymore, but it wasn't removed from code, because this parameter is still available in UnityAds API.
-    if (dict[SPUnityAdsShowOffers]) {
-        BOOL hideOffers = ![dict[SPUnityAdsShowOffers] boolValue];
-        self.showOptions[kUnityAdsOptionNoOfferscreenKey] = @(hideOffers);
-    }
-    
-    return YES;
-}
-
 - (void)checkAvailability
 {
-    BOOL videoAvailable = [[UnityAds sharedInstance] canShow];
-    [self.delegate adapter:self didReportVideoAvailable:videoAvailable];
+    LogInvocation;
+    
+    [[HYPRManager sharedManager] checkInventory:^(BOOL isOfferReady) {
+        self.offerReady = isOfferReady;
+        [self.delegate adapter:self didReportVideoAvailable:isOfferReady];
+        if (isOfferReady) {
+            SPLogDebug(@"[HyprMX] HyprMX reported that offer is ready for display.");
+        }
+        else {
+            SPLogWarn(@"[HyprMX] HyprMX reported that offer cannot be displayed.");
+        }
+    }];
 }
 
 - (void)playVideoWithParentViewController:(UIViewController *)parentVC
 {
-    [[UnityAds sharedInstance] setViewController:parentVC];
-    if (self.zoneId.length) {
-        [[UnityAds sharedInstance] setZone:self.zoneId];
-    }
-    [UnityAds sharedInstance].delegate = self;
+    LogInvocation;
     
-    BOOL success = [[UnityAds sharedInstance] show:self.showOptions];
-    SPLogDebug(@"%@", success ? @"Showing Unity Rewarded Video" : @"Error showing Unity Rewarded Video");
-    if (!success) {
-        // TODO provide error with the description
-        [self.delegate adapter:self didFailWithError:nil];
+    if (self.isOfferReady) {
+        [self.delegate adapterVideoDidStart:self];
+        [[HYPRManager sharedManager] displayOffer:^(BOOL completed, HYPROffer *offer) {
+            self.offerReady = NO;
+            if (completed) {
+                SPLogDebug(@"[HyprMX] HyprMX reported that offer has been completed successfully.");
+                [self.delegate adapterVideoDidFinish:self];
+                [self.delegate adapterVideoDidClose:self];
+            }
+            else {
+                SPLogWarn(@"[HyprMX] HyprMX reported that offer has been aborted.");
+                [self.delegate adapterVideoDidAbort:self];
+            }
+        }];
     }
 }
 
-#pragma mark - UnityAdsDelegate selectors
-
-- (void)unityAdsFetchCompleted
+- (BOOL)startAdapterWithDictionary:(NSDictionary *)dict
 {
-    SPLogInfo(@"UnityAds campaigns available");
-}
-
-- (void)unityAdsFetchFailed
-{
-    [self.delegate adapter:self didFailWithError:nil]; // TODO provide a meaningful error
-}
-
-- (void)unityAdsVideoStarted
-{
-    [self.delegate adapterVideoDidStart:self];
-}
-
-- (void)unityAdsVideoCompleted:(NSString *)rewardItemKey skipped:(BOOL)skipped
-{
-    if (skipped) {
-        [self.delegate adapterVideoDidAbort:self];
-        return;
-    }
+    // Sets the specific data for rewarded video, such as ad placements.
+    // The data dictionary contains the SPNetworkParameters dictionary read from
+    // the plist file
     
-    self.videoFullyWatched = YES;
-    [self.delegate adapterVideoDidFinish:self];
-}
-
-- (void)unityAdsDidHide
-{
-    if (self.videoFullyWatched) {
-        [self.delegate adapterVideoDidClose:self];
-    } else {
-        [self.delegate adapterVideoDidAbort:self];
-    }
-    self.videoFullyWatched = NO;
+    return YES;
 }
 
 @end
