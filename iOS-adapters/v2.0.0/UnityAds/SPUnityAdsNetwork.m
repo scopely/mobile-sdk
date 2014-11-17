@@ -72,10 +72,8 @@ static const NSInteger SPUnityAdsVersionPatch = 0;
 //        SPLogError(@"Could not start %@ Provider. %@ empty or missing.", self.name, SPUnityAdsGameId);
 //        return NO;
 //    }
-
-    NSString *gameId = [NSString stringWithFormat:@"%@-%@", [[WBAdService sharedAdService] fullpageIdForAdId:WBAdIdAF], [[WBAdService sharedAdService] fullpageIdForAdId:WBAdIdAFIncentivizedId]];
     
-    [[UnityAds sharedInstance] startWithGameId:gameId];
+    [[UnityAds sharedInstance] startWithGameId:[[WBAdService sharedAdService] fullpageIdForAdId:WBAdIdAFIncentivizedId]];
 
 #ifdef UNITY_ADS_TEST_MODE
 #warning Unity Ads Test mode enabled
