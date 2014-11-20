@@ -1,13 +1,23 @@
 //
 //  SPMillenialInterstitialAdapter.h
-//  SponsorPayTestApp
 //
-//  Created by Daniel Barden on 18/02/14.
-//  Copyright (c) 2014 SponsorPay. All rights reserved.
+//  Created on 18/02/14.
+//  Copyright (c) 2014 Fyber. All rights reserved.
 //
 
 #import "SPBaseNetwork.h"
 #import "SPInterstitialNetworkAdapter.h"
+
+/**
+ Implementation of Millennial Media network for Interstitial demand
+ 
+ ## Version compatibility
+ 
+ - Adapter version: 2.0.1
+ - Fyber SDK version: 7.0.0
+ - Millennial Media SDK version: 5.4.1
+ 
+ */
 
 @class SPMillennialNetwork;
 
