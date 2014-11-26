@@ -15,7 +15,7 @@
 
 static const NSInteger SPAdColonyVersionMajor = 2;
 static const NSInteger SPAdColonyVersionMinor = 1;
-static const NSInteger SPAdColonyVersionPatch = 1;
+static const NSInteger SPAdColonyVersionPatch = 2;
 
 static NSString *const SPAdColonyAppId = @"SPAdColonyAppId";
 NSString *const SPAdColonyV4VCZoneId = @"SPAdColonyV4VCZoneId";
@@ -87,6 +87,11 @@ static NSString *const SPRewardedVideoAdapterClassName = @"SPAdColonyRewardedVid
     
     if (!V4VCZoneId.length && !interstitialZoneId.length) {
         SPLogError(@"ZoneId for %@ V4VC/interstitial missing or empty", self.name);
+        return NO;
+    }
+    
+    if ([V4VCZoneId isEqualToString:interstitialZoneId]) {
+        SPLogError(@"ZoneId for %@ V4VC and interstitial should not have the same values", self.name);
         return NO;
     }
     

@@ -10,7 +10,9 @@
 #import "SPLogger.h"
 #import "SPReachability.h"
 
+#ifndef LogInvocation
 #define LogInvocation SPLogDebug(@"%s", __PRETTY_FUNCTION__)
+#endif
 
 typedef NS_ENUM(NSInteger, SPAdColonyRewardState) {
     SPAdColonyRewardUnknown,
