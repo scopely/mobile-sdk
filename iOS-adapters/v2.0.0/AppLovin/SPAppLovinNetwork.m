@@ -14,12 +14,13 @@
 #import "ALSdk.h"
 
 static NSString *const SPAppLovinSDKKey                 = @"SPAppLovinSdkKey";
+static NSString *const SPAppLovinEnableVerboseLogging   = @"SPAppLovinEnableVerboseLogging";
 static NSString *const SPInterstitialAdapterClassName   = @"SPAppLovinInterstitialAdapter";
 static NSString *const SPRewardedVideoAdapterClassName  = @"SPAppLovinRewardedVideoAdapter";
 
 // Adapter versioning - Remember to update the header
 static const NSInteger SPAppLovinVersionMajor = 2;
-static const NSInteger SPAppLovinVersionMinor = 1;
+static const NSInteger SPAppLovinVersionMinor = 2;
 static const NSInteger SPAppLovinVersionPatch = 0;
 
 @interface SPAppLovinNetwork()
@@ -79,6 +80,12 @@ static const NSInteger SPAppLovinVersionPatch = 0;
     if (NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0) {
         SPLogError(@"AppLovin only supports iOS 6 or later");
         return NO;
+    }
+    
+    self.alSDKSettings = [[ALSdkSettings alloc] init];
+    id enableVerboseLogging = data[SPAppLovinEnableVerboseLogging];
+    if (enableVerboseLogging && [enableVerboseLogging isKindOfClass:[NSNumber class]]) {
+        [self.alSDKSettings setIsVerboseLogging:[enableVerboseLogging boolValue]];
     }
     
     return YES;
