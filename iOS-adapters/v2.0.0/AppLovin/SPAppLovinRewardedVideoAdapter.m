@@ -135,8 +135,7 @@
 
 -(ALIncentivizedInterstitialAd *)videoAd {
     if (!_videoAd) {
-        ALSdkSettings *alSDKSettings = [[ALSdkSettings alloc] init];
-        ALSdk *appLovinSDKInstance = [ALSdk sharedWithKey:self.network.apiKey settings:alSDKSettings];
+        ALSdk *appLovinSDKInstance = [ALSdk sharedWithKey:self.network.apiKey settings:self.network.alSDKSettings];
         _videoAd = [[ALIncentivizedInterstitialAd alloc] initWithSdk:appLovinSDKInstance];
     }
     return _videoAd;

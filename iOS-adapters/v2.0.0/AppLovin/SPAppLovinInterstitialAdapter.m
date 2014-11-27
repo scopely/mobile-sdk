@@ -10,7 +10,9 @@
 #import "ALInterstitialAd.h"
 #import "SPLogger.h"
 
+#ifndef LogInvocation
 #define LogInvocation SPLogDebug(@"%s", __PRETTY_FUNCTION__)
+#endif
 
 NSString *const SPAppLovinSDKAppKey = @"SPAppLovinSDKAppKey";
 
@@ -40,10 +42,7 @@ NSString *const SPAppLovinSDKAppKey = @"SPAppLovinSDKAppKey";
 
 - (BOOL)startAdapterWithDict:(NSDictionary *)dict
 {
-    ALSdkSettings *alSDKSettings = [[ALSdkSettings alloc] init];
-    alSDKSettings.isVerboseLogging = NO;
-
-    self.appLovinSDKInstance = [ALSdk sharedWithKey:self.network.apiKey settings:alSDKSettings];
+    self.appLovinSDKInstance = [ALSdk sharedWithKey:self.network.apiKey settings:self.network.alSDKSettings];
     [self cacheInterstitial];
 
     return YES;

@@ -8,6 +8,17 @@
 #import <Foundation/Foundation.h>
 #import "SPRewardedVideoNetworkAdapter.h"
 
+/**
+ Implementation of AppLovin network for Rewarded Video demand
+ 
+ ## Version compatibility
+ 
+ - Adapter version: 2.2.0
+ - Fyber SDK version: 7.0.2
+ - AppLovin SDK version: 2.5.3
+ 
+ */
+
 @class SPAppLovinNetwork;
 
 @interface SPAppLovinRewardedVideoAdapter : NSObject <SPRewardedVideoNetworkAdapter>
