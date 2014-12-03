@@ -26,6 +26,8 @@
 
 - (BOOL)startAdapterWithDict:(NSDictionary *)dict
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(adWasTapped:)
                                                  name:MillennialMediaAdWasTapped
@@ -119,6 +121,11 @@
 {
     SPLogDebug(@"Millennial Ad Did dismiss");
     [self.delegate adapter:self didDismissInterstitialWithReason:(self.adWasTapped ? SPInterstitialDismissReasonUserClickedOnAd : SPInterstitialDismissReasonUserClosedAd)];
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 @end
