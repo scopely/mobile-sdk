@@ -10,7 +10,9 @@
 #import "SPInterstitialClient.h"
 #import "SPLogger.h"
 
+#ifndef LogInvocation
 #define LogInvocation SPLogDebug(@"%s", __PRETTY_FUNCTION__)
+#endif
 
 @interface SPAdColonyInterstitialAdapter()
 

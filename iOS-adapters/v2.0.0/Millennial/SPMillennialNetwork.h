@@ -1,12 +1,22 @@
 //
 //  SPMillennialNetwork.h
-//  SponsorPayTestApp
 //
-//  Created by Daniel Barden on 18/02/14.
-//  Copyright (c) 2014 SponsorPay. All rights reserved.
+//  Created on 18/02/14.
+//  Copyright (c) 2014 Fyber. All rights reserved.
 //
 
 #import "SPBaseNetwork.h"
+
+/**
+ Network class in charge of integrating Millennial Media library
+ 
+ ## Version compatibility
+ 
+ - Adapter version: 2.0.2
+ - Fyber SDK version: 7.0.2
+ - Millennial Media SDK version: 5.4.1
+ 
+ */
 
 @interface SPMillennialNetwork : SPBaseNetwork
 

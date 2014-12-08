@@ -1,9 +1,8 @@
 //
 //  SPMillenialInterstitialAdapter.m
-//  SponsorPayTestApp
 //
-//  Created by Daniel Barden on 18/02/14.
-//  Copyright (c) 2014 SponsorPay. All rights reserved.
+//  Created on 18/02/14.
+//  Copyright (c) 2014 Fyber. All rights reserved.
 //
 
 #import "SPLogger.h"
@@ -11,11 +10,13 @@
 #import "SPMillennialNetwork.h"
 #import <MillennialMedia/MMRequest.h>
 #import <MillennialMedia/MMInterstitial.h>
-
+#import "SponsorPaySDK.h"
+#import "SP_SDK_versions.h"
+#import <CoreLocation/CoreLocation.h>
 @interface SPMillennialInterstitialAdapter ()
 
-@property (weak, nonatomic) id<SPInterstitialNetworkAdapterDelegate> delegate;
-@property (assign, nonatomic) BOOL adWasTapped;
+@property (nonatomic, weak) id<SPInterstitialNetworkAdapterDelegate> delegate;
+@property (nonatomic, assign) BOOL adWasTapped;
 
 @end
 
@@ -25,6 +26,8 @@
 
 - (BOOL)startAdapterWithDict:(NSDictionary *)dict
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(adWasTapped:)
                                                  name:MillennialMediaAdWasTapped
@@ -38,6 +41,7 @@
                                              selector:@selector(adModalDidDismiss:)
                                                  name:MillennialMediaAdModalDidDismiss
                                                object:nil];
+    [self fetchOffer];
     return YES;
 }
 
@@ -58,33 +62,45 @@
 
 - (void)showInterstitialFromViewController:(UIViewController *)viewController
 {
-    if ([MMInterstitial isAdAvailableForApid:self.network.apid]) {
-        [MMInterstitial displayForApid:self.network.apid
-                    fromViewController:viewController
-                       withOrientation:0
-                          onCompletion:^(BOOL success, NSError *error) {
-                              if (success) {
-                                  [self fetchOffer];
-                              }
-                          }];
-    } else {
+    if (![MMInterstitial isAdAvailableForApid:self.network.apid]) {
         [self.delegate adapter:self didFailWithError:[NSError errorWithDomain:@"SPInterstitialDomain" code:-8 userInfo:@{NSLocalizedDescriptionKey: @"No interstitial available"}]];
+        return;
     }
+    
+    [MMInterstitial displayForApid:self.network.apid
+                fromViewController:viewController
+                   withOrientation:MMOverlayOrientationTypeAll
+                      onCompletion:^(BOOL success, NSError *error) {
+                          [self fetchOffer];
+                          if (error) {
+                              [self.delegate adapter:self didFailWithError:error];
+                          }
+                      }];
 
 }
 
 #pragma mark - Private Methods
 - (void)fetchOffer
 {
-    if (![MMInterstitial isAdAvailableForApid:self.network.apid]) {
-        MMRequest *request = [MMRequest request];
-
-        [MMInterstitial fetchWithRequest:request apid:self.network.apid onCompletion:^(BOOL success, NSError *error) {
-            if (error) {
-                [self.delegate adapter:self didFailWithError:error];
-            }
-        }];
+    if ([MMInterstitial isAdAvailableForApid:self.network.apid]) {
+        return;
     }
+    
+    MMRequest *request = [MMRequest request];
+        
+#if SP_SDK_MAJOR_RELEASE_VERSION_NUMBER >= 7
+    SPUser *user = [[SponsorPaySDK instance] user];
+    if (user.location) {
+        request.location = user.location;
+    }
+#endif
+        
+    [MMInterstitial fetchWithRequest:request apid:self.network.apid onCompletion:^(BOOL success, NSError *error) {
+        if (error) {
+            [self.delegate adapter:self didFailWithError:error];
+        }
+    }];
+    
 }
 
 #pragma mark - Notifications
@@ -105,6 +121,11 @@
 {
     SPLogDebug(@"Millennial Ad Did dismiss");
     [self.delegate adapter:self didDismissInterstitialWithReason:(self.adWasTapped ? SPInterstitialDismissReasonUserClickedOnAd : SPInterstitialDismissReasonUserClosedAd)];
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 @end

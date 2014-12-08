@@ -17,9 +17,9 @@
  
  ## Version compatibility
  
- - Adapter version: 2.1.1
- - Fyber SDK version: 6.5.2
- - AdColony SDK version: 2.4.12
+ - Adapter version: 2.1.2
+ - Fyber SDK version: 7.0.2
+ - AdColony SDK version: 2.4.13
  
  */
 

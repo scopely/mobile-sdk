@@ -1,5 +1,5 @@
 //
-//  SponsorPay iOS SDK - Vungle Adapter v.2.1.0
+//  SPVungleNetwork.h
 //
 //  Created by Daniel Barden on 13/01/14.
 //  Copyright (c) 2014 SponsorPay. All rights reserved.
@@ -9,6 +9,17 @@
 #import <Foundation/Foundation.h>
 #import <VungleSDK/VungleSDK.h>
 #import "SPBaseNetwork.h"
+
+/**
+ Network class in charge of integrating Vungle library
+ 
+ ## Version compatibility
+ 
+ - Adapter version: 2.2.0
+ - Fyber SDK version: 7.0.2
+ - Vungle SDK version: 3.0.10
+ 
+ */
 
 @interface SPVungleNetwork : SPBaseNetwork
 
