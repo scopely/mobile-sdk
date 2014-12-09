@@ -16,7 +16,7 @@
 // Adapter versioning - Remember to update the header
 static const NSInteger SPAdMobVersionMajor = 2;
 static const NSInteger SPAdMobVersionMinor = 0;
-static const NSInteger SPAdMobVersionPatch = 1;
+static const NSInteger SPAdMobVersionPatch = 2;
 
 static NSString *const SPAdMobCoppaCompliance = @"SPAdMobIsCOPPACompliant";
 
