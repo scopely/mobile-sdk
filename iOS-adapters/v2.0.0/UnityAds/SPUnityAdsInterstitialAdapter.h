@@ -10,13 +10,13 @@
 
 /**
  Implementation of Unity Ads network for Interstitial demand
- 
+
  ## Version compatibility
- 
- - Adapter version: 2.2.0
- - Fyber SDK version: 6.5.2
+
+ - Adapter version: 2.3.0
+ - Fyber SDK version: 7.0.2
  - Unity Ads SDK version: 1.3.8
- 
+
  */
 
 
