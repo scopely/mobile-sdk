@@ -11,3 +11,4 @@ HyprMX SDK: 17
 ####1.0.2
 
 - Fixed crash when no config is provided
+- Added support for HyprMX SDK 17

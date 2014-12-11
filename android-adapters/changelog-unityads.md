@@ -11,3 +11,4 @@ UnityAds SDK: 1.3.10
 ####2.2.0
 
 - Added interstitial adapter
+- Added support for Unity Ads SDK 1.3.8 - 1.3.10

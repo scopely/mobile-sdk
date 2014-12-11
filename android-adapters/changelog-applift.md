@@ -11,6 +11,7 @@ Applift SDK: 4.0.1
 ####1.1.1
 
 - The `cache.interstitials` option is set to true by default
+- Added support for Applift SDK 4.0.1
 
 ####1.1.0
 

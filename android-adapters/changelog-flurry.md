@@ -11,6 +11,7 @@ Flurry SDK: 4.2.0
 ####2.2.1
 
 - Handling no internet situation
+- Added support for Flurry SDK 4.2.0
 
 ####2.2.0
 

@@ -10,7 +10,7 @@ Vungle SDK: 3.2.2
 
 ####2.2.1
 
-- Supports Vungle SDK 3.2.1 and higher
+- Added support for Vungle SDK 3.2.1 - 3.2.2
 
 ####2.2.0
 

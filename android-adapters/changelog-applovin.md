@@ -11,6 +11,7 @@ Applovin SDK: 5.4.2
 ####1.4.0
 
 - Moved verbose logging option toggle to `adapters.config`
+- Added support for Applovin SDK 5.4.2
 
 ####1.2.0
 
