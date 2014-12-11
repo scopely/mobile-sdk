@@ -1,6 +1,6 @@
 //
 //  SPUnityAdsNetwork.m
-//  Fyber iOS SDK - UnityAds Adapter v.2.2.0
+//  Fyber iOS SDK - UnityAds Adapter
 //
 //  Created on 13/01/14.
 //  Copyright (c) 2014 Fyber. All rights reserved.
@@ -11,13 +11,13 @@
 
 /**
  Network class in charge of integrating Unity Ads library
- 
+
  ## Version compatibility
- 
- - Adapter version: 2.2.0
- - Fyber SDK version: 6.5.2
+
+ - Adapter version: 2.3.0
+ - Fyber SDK version: 7.0.2
  - Unity Ads SDK version: 1.3.8
- 
+
  */
 
 @class SPUnityAdsNetwork;

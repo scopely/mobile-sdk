@@ -1,6 +1,6 @@
 //
 //  SPUnityAdsNetwork.m
-//  Fyber iOS SDK - UnityAds Adapter v.2.2.0
+//  Fyber iOS SDK - UnityAds Adapter
 //
 //  Created on 13/01/14.
 //  Copyright (c) 2014 Fyber. All rights reserved.
@@ -20,7 +20,7 @@ static NSString *const SPInterstitialAdapterClassName = @"SPUnityAdsInterstitial
 
 // Adapter versioning - Remember to update the header
 static const NSInteger SPUnityAdsVersionMajor = 2;
-static const NSInteger SPUnityAdsVersionMinor = 2;
+static const NSInteger SPUnityAdsVersionMinor = 3;
 static const NSInteger SPUnityAdsVersionPatch = 0;
 
 @interface SPUnityAdsNetwork ()
@@ -70,13 +70,19 @@ static const NSInteger SPUnityAdsVersionPatch = 0;
         return NO;
     }
 
-    [[UnityAds sharedInstance] startWithGameId:gameId];
-
 #ifdef UNITY_ADS_TEST_MODE
 #warning Unity Ads Test mode enabled
     [[UnityAds sharedInstance] setDebugMode:YES];
     [[UnityAds sharedInstance] setTestMode:YES];
 #endif
+
+    BOOL success = [[UnityAds sharedInstance] startWithGameId:gameId];
+
+    if (!success) {
+        SPLogError(@"Could not start %@ Provider. [[UnityAds sharedInstance] startWithGameId:%@] failed", self.name, gameId);
+        return NO;
+    }
+
     return YES;
 }
 

@@ -11,6 +11,8 @@
 
 static NSString *const SPUnityAdsShowOffers = @"SPUnityAdsShowOffers";
 static NSString *const SPUnityAdsRewardedVideoZoneId = @"SPUnityAdsRewardedVideoZoneId";
+static NSString *const SPUnityAdsErrorDomain = @"SPUnityAdsErrorDomain";
+static NSInteger const SPUnityAdsWrongZoneIdErrorCode = -1;
 
 @interface SPUnityAdsRewardedVideoAdapter ()
 
@@ -52,8 +54,23 @@ static NSString *const SPUnityAdsRewardedVideoZoneId = @"SPUnityAdsRewardedVideo
 
 - (void)checkAvailability
 {
-    BOOL videoAvailable = [[UnityAds sharedInstance] canShow];
-    [self.delegate adapter:self didReportVideoAvailable:videoAvailable];
+    BOOL isZoneIdCorrect = YES;
+    if (self.zoneId.length) {
+        isZoneIdCorrect = [[UnityAds sharedInstance] setZone:self.zoneId];
+    }
+    BOOL canShow = [[UnityAds sharedInstance] canShow];
+    
+    if (canShow && !isZoneIdCorrect) {
+        NSString *errorMessage = [NSString stringWithFormat:@"UnityAds - Cannot set %@: %@",SPUnityAdsRewardedVideoZoneId, self.zoneId];
+        SPLogError(errorMessage);
+        NSError *error = [NSError errorWithDomain:SPUnityAdsErrorDomain
+                                             code:SPUnityAdsWrongZoneIdErrorCode
+                                         userInfo:@{ NSLocalizedDescriptionKey: errorMessage }];
+        [self.delegate adapter:self didFailWithError:error];
+        return;
+    }
+
+    [self.delegate adapter:self didReportVideoAvailable:canShow];
 }
 
 - (void)playVideoWithParentViewController:(UIViewController *)parentVC

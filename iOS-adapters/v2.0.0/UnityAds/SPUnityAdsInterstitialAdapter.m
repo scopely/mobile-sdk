@@ -8,6 +8,7 @@
 #import "SPUnityAdsInterstitialAdapter.h"
 #import "SPUnityAdsNetwork.h"
 #import "SPLogger.h"
+#import "SPInterstitialClient.h"
 
 static NSString *const SPUnityAdsInterstitialZoneId = @"SPUnityAdsInterstitialZoneId";
 
@@ -36,7 +37,22 @@ static NSString *const SPUnityAdsInterstitialZoneId = @"SPUnityAdsInterstitialZo
 #pragma mark - SPInterstitialNetworkAdapter protocol
 - (BOOL)canShowInterstitial
 {
-    return [[UnityAds sharedInstance] canShow];
+    BOOL isZoneIdCorrect = YES;
+    if (self.zoneId.length) {
+        isZoneIdCorrect = [[UnityAds sharedInstance] setZone:self.zoneId];
+    }
+    
+    BOOL canShow = [[UnityAds sharedInstance] canShow];
+
+    if (canShow && !isZoneIdCorrect) {
+        NSString *errorMessage = [NSString stringWithFormat:@"UnityAds - Cannot set %@: %@",SPUnityAdsInterstitialZoneId, self.zoneId];
+        SPLogError(errorMessage);
+        NSError *error = [NSError errorWithDomain:SPInterstitialClientErrorDomain
+                                             code:SPInterstitialClientCannotInstantiateAdapterErrorCode
+                                         userInfo:@{ SPInterstitialClientErrorLoggableDescriptionKey: errorMessage }];
+        [self.delegate adapter:self didFailWithError:error];
+    }
+    return isZoneIdCorrect && [[UnityAds sharedInstance] canShow];
 }
 
 - (void)showInterstitialFromViewController:(UIViewController *)viewController
@@ -45,7 +61,7 @@ static NSString *const SPUnityAdsInterstitialZoneId = @"SPUnityAdsInterstitialZo
     if (self.zoneId.length) {
         [[UnityAds sharedInstance] setZone:self.zoneId];
     }
-    
+
     [UnityAds sharedInstance].delegate = self;
     BOOL success = [[UnityAds sharedInstance] show];
     SPLogDebug(@"%@", success ? @"Showing Unity Ad" : @"Error showing Unity Ad");
