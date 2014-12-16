@@ -1,14 +1,20 @@
-# Unity Ads  - adapter info
+# Unity Ads (formerly Applifier)  - adapter info
+
+***<font color='red'>This is recommended update</font>***
 
 ## Compatibililty
 
 | Network | Adapter version | Third party SDK version | Fyber SDK version |
 |:----------:|:-------------:|:-----------------------:|:------------:|
-| Unity Ads (formerly Applifier) | 2.2.0 | 1.3.8 | 6.5.2 |
+| Unity Ads | 2.3.1 | 1.3.8 | 7.0.3 + |
+
+## Migration guide from Fyber SDK 6.x to 7.x
+
+After migration to Fyber SDK 7.x, the `name` parameter should be set to `Applifier` instead of `UnityAds`. The minimum recommended adapter version for Fyber SDK 7.x is **2.3.1**.
 
 ## Example parameters
 
-* **name**: `Unity Ads`
+* **name**: `Applifier`
 * **settings**:
 	* **SPUnityAdsGameId**
 	* **SPUnityAdsShowOffers**: `YES` | `NO`
@@ -22,4 +28,4 @@
          
 ## Required linker flags
 
-none
+_none_
