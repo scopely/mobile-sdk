@@ -1,12 +1,18 @@
 # HyprMX - adapter changelog
 
+####2.1.2
+
+- Prevent from starting adapter more than once.
+- This is recommended version for Fyber SDK 7.x (please check the **Migration guide from Fyber SDK 6.x to 7.x** section in [README.md](./README.md) file)
+
 ####2.1.1
 
 - Insignificant changes
+- Added support for HyprMX SDK 18
 
 ####2.1.0
 
-- Supports HyprMX SDK 17 and higher
+- Added support for HyprMX SDK 17
 
 ####2.0.1
 
