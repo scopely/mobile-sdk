@@ -1,8 +1,8 @@
 //
-//  SPVungleNetwork.m
+// SPVungleNetwork.m
 //
-//  Created on 13/01/14.
-//  Copyright (c) 2014 SponsorPay. All rights reserved.
+// Created on 13/01/14.
+// Copyright (c) 2014 Fyber. All rights reserved.
 //
 
 #import "SPVungleNetwork.h"
@@ -12,10 +12,9 @@
 
 static NSString *const SPVungleAppId = @"SPVungleAppId";
 static NSString *const SPVungleOrientation = @"SPVungleOrientation";
-static NSString *const SPVungleShowClose = @"SPVungleShowClose";
 
 static const NSInteger SPVungleVersionMajor = 2;
-static const NSInteger SPVungleVersionMinor = 2;
+static const NSInteger SPVungleVersionMinor = 3;
 static const NSInteger SPVungleVersionPatch = 0;
 
 static NSString *const SPRewardedVideoAdapterClassName = @"SPVungleRewardedVideoAdapter";
@@ -60,7 +59,6 @@ NSString *const SPVungleInterfaceOrientationMaskAllButUpsideDown = @"allButUpsid
     }
 
     self.orientation = data[SPVungleOrientation];
-    self.showClose = data[SPVungleShowClose];
 
     self.appId = appId;
     [[VungleSDK sharedSDK] startWithAppId:self.appId];

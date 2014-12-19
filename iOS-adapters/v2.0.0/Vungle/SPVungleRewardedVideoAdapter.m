@@ -1,9 +1,8 @@
 //
-//  SPVungleAdapter.m
-//  SponsorPay iOS SDK
+// SPVungleAdapter.m
 //
-//  Created by David Davila on 5/30/13.
-// Copyright 2011-2013 SponsorPay. All rights reserved.
+// Created on 5/30/13.
+// Copyright 2011-2013 Fyber. All rights reserved.
 //
 
 #import "SPVungleRewardedVideoAdapter.h"
@@ -47,11 +46,13 @@
     if (self.network.orientation.length) {
         [options setObject:@(self.network.orientationMask) forKey:VunglePlayAdOptionKeyOrientations];
     }
-    if (self.network.showClose) {
-        [options setObject:self.network.showClose forKey:VunglePlayAdOptionKeyShowClose];
-    }
 
-    [[VungleSDK sharedSDK] playAd:parentVC withOptions:options];
+    NSError* error = nil;
+    [[VungleSDK sharedSDK] playAd:parentVC withOptions:options error:&error];
+    
+    if (error) {
+        SPLogError(@"Vungle error %d: %@", [error code], [error localizedDescription]);
+    }
 }
 
 #pragma mark - VGVunglePubDelegate protocol implementation

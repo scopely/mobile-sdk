@@ -1,9 +1,8 @@
 //
-//  SPVungleAdapter.h
-//  Fyber iOS SDK
+// SPVungleAdapter.h
 //
-//  Created by on 5/30/13.
-// Copyright 2011-2013 SponsorPay. All rights reserved.
+// Created on 5/30/13.
+// Copyright 2011-2013 Fyber. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -18,9 +17,9 @@
  
  ## Version compatibility
  
- - Adapter version: 2.2.0
- - Fyber SDK version: 7.0.2
- - Vungle SDK version: 3.0.10
+ - Adapter version: 2.3.0
+ - Fyber SDK version: 7.0.3
+ - Vungle SDK version: 3.0.11
  
  */
 
