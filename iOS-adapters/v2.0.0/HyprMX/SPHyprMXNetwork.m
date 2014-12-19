@@ -16,7 +16,7 @@
 
 static const NSInteger SPHyprMXVersionMajor = 2;
 static const NSInteger SPHyprMXVersionMinor = 1;
-static const NSInteger SPHyprMXVersionPatch = 1;
+static const NSInteger SPHyprMXVersionPatch = 2;
 
 static NSString *const SPHyprMXDistributorID = @"SPHyprMXDistributorID";
 static NSString *const SPHyprMXPropertyID = @"SPHyprMXPropertyID";
@@ -29,6 +29,7 @@ static NSString *const SPRewardedVideoAdapterClassName = @"SPHyprMXRewardedVideo
 
 @property (nonatomic, copy, readonly) NSString *HyprMXUserID;
 @property (nonatomic, strong) id<SPTPNVideoAdapter> rewardedVideoAdapter;
+@property (nonatomic, assign) BOOL sdkStarted;
 
 @end
 
@@ -73,6 +74,11 @@ static NSString *const SPRewardedVideoAdapterClassName = @"SPHyprMXRewardedVideo
 
 - (BOOL)startSDK:(NSDictionary *)data
 {
+    if (self.sdkStarted) {
+        SPLogInfo(@"SDK and mediation adapter for HyprMX Provider has already started");
+        return YES;
+    }
+    
     // The HyprMX Mobile SDK supports iOS 6 or higher. It will not return ads on iOS 5.
     if (![SPSystemVersionChecker runningOniOS6OrNewer]) {
         
@@ -104,6 +110,7 @@ static NSString *const SPRewardedVideoAdapterClassName = @"SPHyprMXRewardedVideo
 
     [[HYPRManager sharedManager] initializeWithDistributorId:distributorID propertyId:propertyID userId:self.HyprMXUserID];
 
+    self.sdkStarted = YES;
     return YES;
 }
 
