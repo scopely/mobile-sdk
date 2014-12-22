@@ -4,7 +4,9 @@
 
 | Network | Adapter version | Third party SDK version | Fyber SDK version |
 |:----------:|:-------------:|:-----------------------:|:------------:|
-| Vungle | 2.2.0 | 3.0.10 | 7.0.2 |
+| Vungle | 2.3.0 | 3.0.11 | 7.0.3 |
+
+**Important:** *The Vungle SDK supports iOS 6 or higher.*
 
 ## Example parameters
 
@@ -35,3 +37,8 @@
 ## Required linker flags
 
  none
+ 
+## Known issues
+**Information from Vungle:**
+
+**There is currently a known, but uncommon crash on iOS when users place the app in the background as the video ad experience is playing.**

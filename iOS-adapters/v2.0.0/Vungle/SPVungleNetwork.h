@@ -1,8 +1,8 @@
 //
-//  SPVungleNetwork.h
+// SPVungleNetwork.h
 //
-//  Created by Daniel Barden on 13/01/14.
-//  Copyright (c) 2014 SponsorPay. All rights reserved.
+// Created on 13/01/14.
+// Copyright (c) 2014 Fyber. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -15,9 +15,9 @@
  
  ## Version compatibility
  
- - Adapter version: 2.2.0
- - Fyber SDK version: 7.0.2
- - Vungle SDK version: 3.0.10
+ - Adapter version: 2.3.0
+ - Fyber SDK version: 7.0.3
+ - Vungle SDK version: 3.0.11
  
  */
 
@@ -26,6 +26,5 @@
 @property (nonatomic, copy) NSString *appId;
 @property (nonatomic, copy) NSString *orientation;
 @property (nonatomic, readonly) UIInterfaceOrientationMask orientationMask;
-@property (nonatomic, copy) NSNumber *showClose;
 
 @end
