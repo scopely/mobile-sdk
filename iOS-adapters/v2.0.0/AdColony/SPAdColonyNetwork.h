@@ -16,8 +16,8 @@ FOUNDATION_EXPORT NSString *const SPAdColonyInterstitialZoneId;
  
  ## Version compatibility
  
- - Adapter version: 2.1.2
- - Fyber SDK version: 7.0.2
+ - Adapter version: 2.1.3
+ - Fyber SDK version: 7.0.3
  - AdColony SDK version: 2.4.13
  
  */
