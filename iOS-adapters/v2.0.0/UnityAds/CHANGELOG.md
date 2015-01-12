@@ -1,5 +1,11 @@
 # Unity Ads - adapter changelog
 
+####2.4.0
+
+- Added support for Unity Ads SDK 1.3.10
+- Dropped support for iOS 5
+- Dropped support for `SPUnityAdsShowOffers` parameter
+
 ####2.3.1
 
 - Prevent from starting adapter more than once.

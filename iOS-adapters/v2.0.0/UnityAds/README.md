@@ -1,12 +1,10 @@
 # Unity Ads (formerly Applifier)  - adapter info
 
-***<font color='red'>This is recommended update</font>***
-
 ## Compatibililty
 
 | Network | Adapter version | Third party SDK version | Fyber SDK version |
 |:----------:|:-------------:|:-----------------------:|:------------:|
-| Unity Ads | 2.3.1 | 1.3.8 | 7.0.3 + |
+| Unity Ads | 2.4.0 | 1.3.10 | 7.0.3 + |
 
 ## Migration guide from Fyber SDK 6.x to 7.x
 
@@ -17,7 +15,6 @@ After migration to Fyber SDK 7.x, the `name` parameter should be set to `Applifi
 * **name**: `Applifier`
 * **settings**:
 	* **SPUnityAdsGameId**
-	* **SPUnityAdsShowOffers**: `YES` | `NO`
 	* **SPUnityAdsInterstitialZoneId**
 	* **SPUnityAdsRewardedVideoZoneId**
 	
