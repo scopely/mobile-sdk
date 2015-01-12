@@ -20,8 +20,8 @@ static NSString *const SPInterstitialAdapterClassName = @"SPUnityAdsInterstitial
 
 // Adapter versioning - Remember to update the header
 static const NSInteger SPUnityAdsVersionMajor = 2;
-static const NSInteger SPUnityAdsVersionMinor = 3;
-static const NSInteger SPUnityAdsVersionPatch = 1;
+static const NSInteger SPUnityAdsVersionMinor = 4;
+static const NSInteger SPUnityAdsVersionPatch = 0;
 
 @interface SPUnityAdsNetwork ()
 
@@ -69,6 +69,12 @@ static const NSInteger SPUnityAdsVersionPatch = 1;
     }
     
     self.name = @"Applifier";
+    
+    if (NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0) {
+        SPLogError(@"Could not start Applifier/UnityAds Provider. The UnityAds SDK supports only iOS 6 or higher.");
+        return NO;
+    }
+    
     NSString *gameId = data[SPUnityAdsGameId];
 
     if (!gameId) {

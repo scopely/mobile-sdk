@@ -9,7 +9,6 @@
 #import "SPUnityAdsNetwork.h"
 #import "SPLogger.h"
 
-static NSString *const SPUnityAdsShowOffers = @"SPUnityAdsShowOffers";
 static NSString *const SPUnityAdsRewardedVideoZoneId = @"SPUnityAdsRewardedVideoZoneId";
 static NSString *const SPUnityAdsErrorDomain = @"SPUnityAdsErrorDomain";
 static NSInteger const SPUnityAdsWrongZoneIdErrorCode = -1;
@@ -34,21 +33,13 @@ static NSInteger const SPUnityAdsWrongZoneIdErrorCode = -1;
 - (BOOL)startAdapterWithDictionary:(NSDictionary *)dict
 {
     self.zoneId = dict[SPUnityAdsRewardedVideoZoneId];
-    if (self.zoneId.length == 0) {
-        self.zoneId = nil;
-    }
-
+    
+    // The `kUnityAdsOptionNoOfferscreenKey` parameter should always be passed with the `@YES` value
     self.showOptions = [[NSMutableDictionary alloc] initWithDictionary:@{
         kUnityAdsOptionVideoUsesDeviceOrientation: @YES,
         kUnityAdsOptionNoOfferscreenKey: @YES
     }];
-
-    // It seems that kUnityAdsOptionNoOfferscreenKey option doesn't work anymore, but it wasn't removed from code, because this parameter is still available in UnityAds API.
-    if (dict[SPUnityAdsShowOffers]) {
-        BOOL hideOffers = ![dict[SPUnityAdsShowOffers] boolValue];
-        self.showOptions[kUnityAdsOptionNoOfferscreenKey] = @(hideOffers);
-    }
-
+    
     return YES;
 }
 
@@ -80,7 +71,7 @@ static NSInteger const SPUnityAdsWrongZoneIdErrorCode = -1;
         [[UnityAds sharedInstance] setZone:self.zoneId];
     }
     [UnityAds sharedInstance].delegate = self;
-
+    
     BOOL success = [[UnityAds sharedInstance] show:self.showOptions];
     SPLogDebug(@"%@", success ? @"Showing Unity Rewarded Video" : @"Error showing Unity Rewarded Video");
     if (!success) {

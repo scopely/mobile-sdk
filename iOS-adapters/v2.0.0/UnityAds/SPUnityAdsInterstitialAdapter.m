@@ -16,6 +16,7 @@ static NSString *const SPUnityAdsInterstitialZoneId = @"SPUnityAdsInterstitialZo
 
 @property (nonatomic, weak) id<SPInterstitialNetworkAdapterDelegate> delegate;
 @property (nonatomic, assign) BOOL userClickedAd;
+@property (nonatomic, strong) NSMutableDictionary *showOptions;
 @property (nonatomic, copy) NSString *zoneId;
 @end
 
@@ -31,6 +32,13 @@ static NSString *const SPUnityAdsInterstitialZoneId = @"SPUnityAdsInterstitialZo
 - (BOOL)startAdapterWithDict:(NSDictionary *)dict
 {
     self.zoneId = dict[SPUnityAdsInterstitialZoneId];
+    
+    // The `kUnityAdsOptionNoOfferscreenKey` parameter should always be passed with the `@YES` value
+    self.showOptions = [[NSMutableDictionary alloc] initWithDictionary:@{
+        kUnityAdsOptionVideoUsesDeviceOrientation: @YES,
+        kUnityAdsOptionNoOfferscreenKey: @YES
+    }];
+    
     return YES;
 }
 
@@ -61,10 +69,10 @@ static NSString *const SPUnityAdsInterstitialZoneId = @"SPUnityAdsInterstitialZo
     if (self.zoneId.length) {
         [[UnityAds sharedInstance] setZone:self.zoneId];
     }
-
     [UnityAds sharedInstance].delegate = self;
-    BOOL success = [[UnityAds sharedInstance] show];
-    SPLogDebug(@"%@", success ? @"Showing Unity Ad" : @"Error showing Unity Ad");
+    
+    BOOL success = [[UnityAds sharedInstance] show:self.showOptions];
+    SPLogDebug(@"%@", success ? @"Showing ad for UnityAds" : @"Error showing ad for UnityAds");
     if (!success) {
         // TODO provide error with the description
         [self.delegate adapter:self didFailWithError:nil];
