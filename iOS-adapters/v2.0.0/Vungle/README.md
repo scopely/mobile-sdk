@@ -4,7 +4,7 @@
 
 | Network | Adapter version | Third party SDK version | Fyber SDK version |
 |:----------:|:-------------:|:-----------------------:|:------------:|
-| Vungle | 2.3.0 | 3.0.11 | 7.0.3 |
+| Vungle | 2.3.1 | 3.0.11 | 7.0.3 |
 
 **Important:** *The Vungle SDK supports iOS 6 or higher.*
 
@@ -13,7 +13,6 @@
 * **name**: `Vungle`
 * **settings**:
 	* **SPVungleAppId**
-* **SPVungleShowClose**: `NO` | `YES`
 * **SPVungleOrientation**: `all` | `portrait` | `landscapeLeft` | `landscapeRight` | `portraitUpsideDown` | `landscape` | `allButUpsideDown`
 
 

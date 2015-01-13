@@ -47,9 +47,9 @@
         [options setObject:@(self.network.orientationMask) forKey:VunglePlayAdOptionKeyOrientations];
     }
 
-    NSError* error = nil;
+    NSError *error = nil;
     [[VungleSDK sharedSDK] playAd:parentVC withOptions:options error:&error];
-    
+
     if (error) {
         SPLogError(@"Vungle error %d: %@", [error code], [error localizedDescription]);
     }
@@ -77,15 +77,23 @@
     }
 
     if (!willPresentProductSheet) {
-        [self.delegate adapterVideoDidClose:self];
+        [self reportAdDidClose];
     }
 }
 
 - (void)vungleSDKwillCloseProductSheet:(id)productSheet
 {
     LogInvocation;
+    [self reportAdDidClose];
+}
 
-    [self.delegate adapterVideoDidClose:self];
+- (void)reportAdDidClose
+{
+    if (self.videoDidPlayFull) {
+        [self.delegate adapterVideoDidClose:self];
+    } else {
+        [self.delegate adapterVideoDidAbort:self];
+    }
 }
 
 @end
