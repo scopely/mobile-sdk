@@ -1,5 +1,9 @@
 # Vungle - adapter changelog
 
+####2.3.1
+
+ - Minor fixes
+
 ####2.3.0
 
  - Supports Vungle SDK 3.0.11
