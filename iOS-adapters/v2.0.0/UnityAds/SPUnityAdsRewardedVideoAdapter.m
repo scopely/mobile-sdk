@@ -49,7 +49,9 @@ static NSInteger const SPUnityAdsWrongZoneIdErrorCode = -1;
     if (self.zoneId.length) {
         isZoneIdCorrect = [[UnityAds sharedInstance] setZone:self.zoneId];
     }
+    
     BOOL canShow = [[UnityAds sharedInstance] canShow];
+    BOOL canShowAds = [[UnityAds sharedInstance] canShowAds];
     
     if (canShow && !isZoneIdCorrect) {
         NSString *errorMessage = [NSString stringWithFormat:@"UnityAds - Cannot set %@: %@",SPUnityAdsRewardedVideoZoneId, self.zoneId];
@@ -61,7 +63,7 @@ static NSInteger const SPUnityAdsWrongZoneIdErrorCode = -1;
         return;
     }
 
-    [self.delegate adapter:self didReportVideoAvailable:canShow];
+    [self.delegate adapter:self didReportVideoAvailable:(canShow && canShowAds)];
 }
 
 - (void)playVideoWithParentViewController:(UIViewController *)parentVC

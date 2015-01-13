@@ -21,7 +21,7 @@ static NSString *const SPInterstitialAdapterClassName = @"SPUnityAdsInterstitial
 // Adapter versioning - Remember to update the header
 static const NSInteger SPUnityAdsVersionMajor = 2;
 static const NSInteger SPUnityAdsVersionMinor = 4;
-static const NSInteger SPUnityAdsVersionPatch = 0;
+static const NSInteger SPUnityAdsVersionPatch = 1;
 
 @interface SPUnityAdsNetwork ()
 

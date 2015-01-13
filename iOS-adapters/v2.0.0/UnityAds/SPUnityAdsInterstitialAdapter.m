@@ -51,8 +51,9 @@ static NSString *const SPUnityAdsInterstitialZoneId = @"SPUnityAdsInterstitialZo
     }
     
     BOOL canShow = [[UnityAds sharedInstance] canShow];
-
-    if (canShow && !isZoneIdCorrect) {
+    BOOL canShowAds = [[UnityAds sharedInstance] canShowAds];
+    
+    if (canShow && canShowAds && !isZoneIdCorrect) {
         NSString *errorMessage = [NSString stringWithFormat:@"UnityAds - Cannot set %@: %@",SPUnityAdsInterstitialZoneId, self.zoneId];
         SPLogError(errorMessage);
         NSError *error = [NSError errorWithDomain:SPInterstitialClientErrorDomain
@@ -60,7 +61,7 @@ static NSString *const SPUnityAdsInterstitialZoneId = @"SPUnityAdsInterstitialZo
                                          userInfo:@{ SPInterstitialClientErrorLoggableDescriptionKey: errorMessage }];
         [self.delegate adapter:self didFailWithError:error];
     }
-    return isZoneIdCorrect && [[UnityAds sharedInstance] canShow];
+    return isZoneIdCorrect && canShow && canShowAds;
 }
 
 - (void)showInterstitialFromViewController:(UIViewController *)viewController
