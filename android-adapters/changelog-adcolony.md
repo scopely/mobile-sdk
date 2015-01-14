@@ -1,10 +1,10 @@
 #AdColony current versions:
 
-Adapter: 1.1.1
+Adapter: 1.1.2
 
-Fyber SDK: 7.0.0
+Fyber SDK: 7.0.2
 
-AdColony SDK: 2.1.3
+AdColony SDK: 2.2.0
 
 #Changelog
 
