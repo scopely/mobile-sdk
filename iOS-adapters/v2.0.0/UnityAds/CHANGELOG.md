@@ -1,5 +1,9 @@
 # Unity Ads - adapter changelog
 
+####2.4.1
+
+- Fixed issue that allowed to show an ad even if there was no inventory available
+
 ####2.4.0
 
 - Added support for Unity Ads SDK 1.3.10
