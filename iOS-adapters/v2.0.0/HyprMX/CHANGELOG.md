@@ -1,5 +1,9 @@
 # HyprMX - adapter changelog
 
+####2.1.3
+
+ - Added workaround to fix an issue which caused screen to be cropped on Unity platform
+  
 ####2.1.2
 
 - Prevent from starting adapter more than once.

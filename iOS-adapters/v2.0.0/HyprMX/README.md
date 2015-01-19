@@ -6,7 +6,7 @@
 
 | Network | Adapter version | Third party SDK version | Fyber SDK version |
 |:----------:|:-------------:|:-----------------------:|:------------:|
-| HyprMX | 2.1.2 | 18 | 7.0.3 + |
+| HyprMX | 2.1.3 | 18 | 7.0.3 + |
 
 **Important:** *The HyprMX Mobile SDK supports iOS 6 or higher. It will not return ads on iOS 5 and should not be initialized on iOS 4. To integrate HyprMX with an application supporting iOS 4, you will need to weak link the Foundation and CoreLocation libraries.*
 

@@ -53,14 +53,13 @@
         [self.delegate adapterVideoDidStart:self];
         [[HYPRManager sharedManager] displayOffer:^(BOOL completed, HYPROffer *offer) {
             self.offerReady = NO;
-            if (completed) {
-                SPLogDebug(@"[HyprMX] HyprMX reported that offer has been completed successfully.");
-                [self.delegate adapterVideoDidFinish:self];
-                [self.delegate adapterVideoDidClose:self];
-            }
-            else {
-                SPLogWarn(@"[HyprMX] HyprMX reported that offer has been aborted.");
-                [self.delegate adapterVideoDidAbort:self];
+//Calling delegate events immidiately after callback from HyprMX may cause UI issues in Unity builds on iOS7 &iOS6
+            if (NSFoundationVersionNumber <= NSFoundationVersionNumber_iOS_7_1) {
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    [self reportAdDidClose:completed];
+                });
+            }else{
+                [self reportAdDidClose:completed];
             }
         }];
     }
@@ -75,4 +74,16 @@
     return YES;
 }
 
+- (void)reportAdDidClose:(BOOL) completed
+{
+    if (completed) {
+        SPLogDebug(@"[HyprMX] HyprMX reported that offer has been completed successfully.");
+        [self.delegate adapterVideoDidFinish:self];
+        [self.delegate adapterVideoDidClose:self];
+    }
+    else {
+        SPLogWarn(@"[HyprMX] HyprMX reported that offer has been aborted.");
+        [self.delegate adapterVideoDidAbort:self];
+    }
+}
 @end
