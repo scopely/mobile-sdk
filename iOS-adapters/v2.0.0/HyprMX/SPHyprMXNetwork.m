@@ -16,7 +16,7 @@
 
 static const NSInteger SPHyprMXVersionMajor = 2;
 static const NSInteger SPHyprMXVersionMinor = 1;
-static const NSInteger SPHyprMXVersionPatch = 2;
+static const NSInteger SPHyprMXVersionPatch = 3;
 
 static NSString *const SPHyprMXDistributorID = @"SPHyprMXDistributorID";
 static NSString *const SPHyprMXPropertyID = @"SPHyprMXPropertyID";
