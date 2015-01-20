@@ -1,6 +1,5 @@
 //
 //  SPAppLovingInterstitialAdapter.m
-//  SponsorPayTestApp
 //
 //  Copyright (c) 2013 Fyber. All rights reserved.
 //

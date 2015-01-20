@@ -4,7 +4,7 @@
 
 | Network | Adapter version | Third party SDK version | Fyber SDK version |
 |:----------:|:-------------:|:-----------------------:|:------------:|
-| AppLovin | 2.2.0 | 2.5.3 | 7.0.2 |
+| AppLovin | 2.3.0 | 2.5.4 | 7.0.3 + |
 
 **Important:** *The AppLovin Mobile SDK supports iOS 6 or higher.*
 

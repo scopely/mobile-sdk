@@ -1,5 +1,5 @@
 //
-//  Fyber iOS SDK - AppLovin Adapter v.2.1.0
+//  SPProviderAppLovin.h
 //
 //  Copyright (c) 2014 Fyber. All rights reserved.
 //
@@ -12,9 +12,9 @@
  
  ## Version compatibility
  
- - Adapter version: 2.2.0
- - Fyber SDK version: 7.0.2
- - AppLovin SDK version: 2.5.3
+ - Adapter version: 2.3.0
+ - Fyber SDK version: 7.0.3
+ - AppLovin SDK version: 2.5.4
  
  */
 
