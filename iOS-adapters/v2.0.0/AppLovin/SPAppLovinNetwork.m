@@ -1,6 +1,5 @@
 //
 //  SPProviderAppLovin.m
-//  Fyber iOS SDK - AppLovin Adapter v.2.1.0
 //
 //  Copyright (c) 2014 Fyber. All rights reserved.
 //
@@ -20,7 +19,7 @@ static NSString *const SPRewardedVideoAdapterClassName  = @"SPAppLovinRewardedVi
 
 // Adapter versioning - Remember to update the header
 static const NSInteger SPAppLovinVersionMajor = 2;
-static const NSInteger SPAppLovinVersionMinor = 2;
+static const NSInteger SPAppLovinVersionMinor = 3;
 static const NSInteger SPAppLovinVersionPatch = 0;
 
 @interface SPAppLovinNetwork()
