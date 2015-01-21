@@ -6,7 +6,7 @@
 
 | Network | Adapter version | Third party SDK version | Fyber SDK version |
 |:----------:|:-------------:|:-----------------------:|:------------:|
-| Flurry for Advertisers | 2.2.0 | 5.4.0 | 6.5.2 |
+| Flurry for Advertisers | 2.2.1 | 5.4.0 | 7.0.3 |
 
 ## Example parameters
 

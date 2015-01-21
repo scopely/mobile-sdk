@@ -78,13 +78,14 @@ static NSString *const SPFlurryInterstitialAdSpace = @"SPFlurryAdSpaceInterstiti
         return;
     }
 
-    NSError *interstitialError =
-    [NSError errorWithDomain:@"com.sponsorpay.interstitialError"
-                        code:error.code
-                    userInfo:@{
-                        NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Flurry error: %@", error.localizedDescription],
-                        NSUnderlyingErrorKey: error
-                    }];
+    NSDictionary * userInfo;
+    if(error){
+        userInfo = @{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Flurry error: %@", error.localizedDescription], NSUnderlyingErrorKey:error};
+    } else {
+        userInfo = @{NSLocalizedDescriptionKey: @"Flurry interstitial unknown error"};
+    }
+    
+    NSError *interstitialError = [NSError errorWithDomain:@"com.sponsorpay.interstitialError" code:error.code userInfo:userInfo];
     [self.delegate adapter:self didFailWithError:interstitialError];
 }
 
