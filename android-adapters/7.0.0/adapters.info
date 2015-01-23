@@ -87,12 +87,6 @@
          ]
       },
       {
-         "qualifiedName":"com.sponsorpay.mediation.EbuzzingMediationAdapter",
-         "versions":[
-            "1.0.0"
-         ]
-      },
-      {
          "qualifiedName": "com.sponsorpay.mediation.HyprMXMediationAdapter",
          "versions": [
             "1.0.2"
