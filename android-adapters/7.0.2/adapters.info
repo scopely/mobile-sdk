@@ -56,12 +56,6 @@
          ]
       },
       {
-         "qualifiedName":"com.sponsorpay.mediation.AppiaMediationAdapter",
-         "versions":[
-            "1.0.0"
-         ]
-      },
-      {
          "qualifiedName":"com.sponsorpay.mediation.InMobiMediationAdapter",
          "versions":[
             "1.0.0",
