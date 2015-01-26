@@ -1,4 +1,4 @@
-# Ebuzzing - adapter info
+# AdMob - adapter info
 
 ## Compatibililty
 
