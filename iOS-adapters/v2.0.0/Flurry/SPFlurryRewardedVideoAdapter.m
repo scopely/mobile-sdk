@@ -1,5 +1,5 @@
 //
-//  SPFlurryAdapter.m
+//  SPFlurryRewardedVideoAdapter.m
 //
 //  Created on 6/17/13.
 //  Copyright (c) 2011-2014 Fyber. All rights reserved.
@@ -8,25 +8,26 @@
 #import "SPFlurryRewardedVideoAdapter.h"
 #import "SPFlurryNetwork.h"
 #import "SPLogger.h"
+#import "FlurryAdInterstitial.h"
 
-#import "FlurryAds.h"
-static const NSInteger kFlurryNoAdsErrorCode = 104;
 static NSString *const SPFlurryVideoAdSpace = @"SPFlurryAdSpaceVideo";
+static NSString *const SPFlurryErrorDomain = @"SPFlurryErrorDomain";
+static const NSInteger SPFlurryVideoNotReadyErrorCode = -4;
 
 @interface SPFlurryAppCircleClipsRewardedVideoAdapter ()
 
 @property (nonatomic, copy) NSString *videoAdsSpace;
-@property (copy) SPTPNValidationResultBlock validationResultsBlock;
-
-@property (copy) SPTPNVideoEventsHandlerBlock videoEventsCallback;
-@property (assign, nonatomic) SPTPNProviderPlayingState playingState;
-
-@property (assign) BOOL playingDidTimeout;
-
+@property (nonatomic, strong) FlurryAdInterstitial *adInterstitial;
+@property (nonatomic, assign) BOOL isFetchingAd;
+@property (nonatomic, assign) BOOL isVideoFullyWatched;
 
 @end
 
 @implementation SPFlurryAppCircleClipsRewardedVideoAdapter
+
+@synthesize delegate;
+
+#pragma mark - SPRewardedVideoNetworkAdapter
 
 - (BOOL)startAdapterWithDictionary:(NSDictionary *)dict
 {
@@ -36,8 +37,6 @@ static NSString *const SPFlurryVideoAdSpace = @"SPFlurryAdSpaceVideo";
         return NO;
     }
 
-    [self.network.multicastDelegate addAdDelegate:self];
-
     return YES;
 }
 
@@ -46,161 +45,80 @@ static NSString *const SPFlurryVideoAdSpace = @"SPFlurryAdSpaceVideo";
     return self.network.name;
 }
 
-- (void)videosAvailable:(SPTPNValidationResultBlock)callback
+- (void)checkAvailability
 {
-    if ([FlurryAds adReadyForSpace:self.videoAdsSpace]) {
-        self.validationResultsBlock = nil;
-        callback(self.networkName, SPTPNValidationSuccess);
-    } else {
-        self.validationResultsBlock = callback;
-        [self fetchFlurryAd];
-        [self startValidationTimeoutChecker];
+    if (self.adInterstitial.ready) {
+        [self.delegate adapter:self didReportVideoAvailable:YES];
+    } else if (!self.isFetchingAd) {
+        self.isFetchingAd = YES;
+        self.adInterstitial = [[FlurryAdInterstitial alloc] initWithSpace:self.videoAdsSpace];
+        self.adInterstitial.adDelegate = self;
+        [self.adInterstitial fetchAd];
     }
 }
-
-- (void)fetchFlurryAd
-{
-    [FlurryAds fetchAdForSpace:self.videoAdsSpace
-                         frame:self.network.mainWindow.rootViewController.view.frame
-                          size:FULLSCREEN];
-}
-
-- (void)startValidationTimeoutChecker
-{
-    void (^timeoutBlock)(void) = ^(void) {
-        if (self.validating) {
-            [self notifyOfValidationResult:SPTPNValidationTimeout];
-        }
-    };
-    double delayInSeconds = SPTPNTimeoutInterval;
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-    dispatch_after(popTime, dispatch_get_main_queue(), timeoutBlock);
-}
-
 
 - (void)playVideoWithParentViewController:(UIViewController *)parentVC
-                        notifyingCallback:(SPTPNVideoEventsHandlerBlock)eventsCallback
 {
-    self.videoEventsCallback = eventsCallback;
-    self.playingState = SPTPNProviderPlayingStateWaitingForPlayStart;
-
-    // According to the documentation, the view is not used by the Flurry SDK, but setting to nil causes an exception
-    UIView *topView = [[self.network.mainWindow subviews] lastObject];
-    [FlurryAds displayAdForSpace:self.videoAdsSpace onView:topView viewControllerForPresentation:parentVC];
-
-    [self startPlayingTimeoutChecker];
-}
-
-- (void)startPlayingTimeoutChecker
-{
-    self.playingDidTimeout = NO;
-
-    void (^timeoutBlock)(void) = ^(void) {
-        if (self.playingState == SPTPNProviderPlayingStateWaitingForPlayStart) {
-            self.playingDidTimeout = YES;
-            self.playingState = SPTPNProviderPlayingStateNotPlaying;
-            self.videoEventsCallback(self.networkName, SPTPNVideoEventTimeout);
-        }
-    };
-
-    double delayInSeconds = SPTPNTimeoutInterval;
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-    dispatch_after(popTime, dispatch_get_main_queue(), timeoutBlock);
-}
-
-#pragma mark - FlurryAdDelegate
-
-- (void)spaceDidReceiveAd:(NSString *)adSpace
-{
-    if ([self isThisAdSpace:adSpace]) {
-        if (self.validating) {
-            [self notifyOfValidationResult:SPTPNValidationSuccess];
-        }
-    }
-}
-
-- (void)spaceDidRender:(NSString *)space interstitial:(BOOL)interstitial
-{
-    if ([self isThisAdSpace:space]) {
-        self.playingState = SPTPNProviderPlayingStatePlaying;
-        self.videoEventsCallback(self.networkName, SPTPNVideoEventStarted);
-    }
-}
-
-- (void)spaceDidFailToReceiveAd:(NSString *)adSpace error:(NSError *)error
-{
-    if ([self isThisAdSpace:adSpace]) {
-        SPLogDebug(@"Flurry's callback invoked: %s %@", __PRETTY_FUNCTION__, error);
-
-        if (self.validating) {
-            SPTPNValidationResult validationResult =
-            (error.code == kFlurryNoAdsErrorCode ? SPTPNValidationNoVideoAvailable : SPTPNValidationError);
-            [self notifyOfValidationResult:validationResult];
-        }
-    }
-}
-
-- (BOOL)spaceShouldDisplay:(NSString *)adSpace interstitial:(BOOL)interstitial
-{
-    if ([self isThisAdSpace:adSpace]) {
-        return !self.playingDidTimeout;
-    }
-    
-    return YES;
-}
-
-- (void)spaceDidFailToRender:(NSString *)adSpace error:(NSError *)error
-{
-    if (![self isThisAdSpace:adSpace]) {
-        return;
-    }
-    SPLogError(@"Flurry failed to render ad: %@", [error localizedDescription]);
-    if (self.playingState != SPTPNProviderPlayingStateNotPlaying)
-        self.videoEventsCallback(self.networkName, SPTPNVideoEventError);
-}
-
-- (void)videoDidFinish:(NSString *)adSpace
-{
-    if (![self isThisAdSpace:adSpace]) {
-        return;
-    }
-    if (self.playingState == SPTPNProviderPlayingStatePlaying) {
-        self.playingState = SPTPNProviderPlayingStateNotPlaying;
-        self.videoEventsCallback(self.networkName, SPTPNVideoEventFinished);
-    }
-}
-
-- (void)spaceDidDismiss:(NSString *)adSpace interstitial:(BOOL)interstitial
-{
-    if (![self isThisAdSpace:adSpace]) {
-        return;
-    }
-    if (self.playingState == SPTPNProviderPlayingStatePlaying) {
-        self.playingState = SPTPNProviderPlayingStateNotPlaying;
-        self.videoEventsCallback(self.networkName, SPTPNVideoEventAborted);
+    if ([self.adInterstitial ready]) {
+        self.isVideoFullyWatched = NO;
+        [self.adInterstitial presentWithViewControler:parentVC];
     } else {
-        self.videoEventsCallback(self.networkName, SPTPNVideoEventClosed);
+        NSString *errorDescription = @"Flurry video is not ready";
+        [self.delegate adapter:self
+              didFailWithError:[NSError errorWithDomain:SPFlurryErrorDomain
+                                                   code:SPFlurryVideoNotReadyErrorCode
+                                               userInfo:@{ NSLocalizedDescriptionKey: errorDescription }]];
     }
 }
 
-#pragma mark -
+#pragma mark - FlurryAdInterstitialDelegate
 
-- (BOOL)validating
+- (void)adInterstitialDidFetchAd:(FlurryAdInterstitial *)interstitialAd
 {
-    return self.validationResultsBlock != nil;
+    self.isFetchingAd = NO;
+    [self.delegate adapter:self didReportVideoAvailable:YES];
 }
 
-- (void)notifyOfValidationResult:(SPTPNValidationResult)result
+- (void)adInterstitialDidRender:(FlurryAdInterstitial *)interstitialAd
 {
-    if (self.validationResultsBlock) {
-        self.validationResultsBlock(self.networkName, result);
-        self.validationResultsBlock = nil;
+    [self.delegate adapterVideoDidStart:self];
+}
+
+- (void)adInterstitialDidDismiss:(FlurryAdInterstitial *)interstitialAd
+{
+    if (self.isVideoFullyWatched) {
+        [self.delegate adapterVideoDidClose:self];
+    } else {
+        [self.delegate adapterVideoDidAbort:self];
     }
 }
 
-- (BOOL)isThisAdSpace:(NSString *)adSpace
+
+- (void)adInterstitialVideoDidFinish:(FlurryAdInterstitial *)interstitialAd
 {
-    return [self.videoAdsSpace isEqualToString:adSpace];
+    self.isVideoFullyWatched = YES;
+    [self.delegate adapterVideoDidFinish:self];
+}
+
+
+- (void)adInterstitial:(FlurryAdInterstitial *)interstitialAd
+               adError:(FlurryAdError)adError
+      errorDescription:(NSError *)errorDescription
+{
+    self.isFetchingAd = NO;
+    switch (adError) {
+    case FLURRY_AD_ERROR_DID_FAIL_TO_FETCH_AD:
+        [self.delegate adapter:self didReportVideoAvailable:NO];
+        break;
+    case FLURRY_AD_ERROR_CLICK_ACTION_FAILED:
+    case FLURRY_AD_ERROR_DID_FAIL_TO_RENDER:
+    default:
+        [self.delegate adapter:self
+              didFailWithError:[NSError errorWithDomain:SPFlurryErrorDomain
+                                                   code:errorDescription.code
+                                               userInfo:@{ NSLocalizedDescriptionKey:[NSString stringWithFormat:@"Flurry error: %@", errorDescription.localizedDescription]}]];
+        break;
+    }
 }
 
 @end
