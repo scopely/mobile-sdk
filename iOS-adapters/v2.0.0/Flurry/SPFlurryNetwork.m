@@ -1,6 +1,5 @@
 //
 //  SPProviderFlurry.m
-//  Fyber iOS SDK - Flurry Adapter v.2.2.0
 //
 //  Created on 02/01/14.
 //  Copyright (c) 2014 Fyber. All rights reserved.
@@ -13,6 +12,8 @@
 #import "Flurry.h"
 #import "SPSemanticVersion.h"
 #import "SPTPNGenericAdapter.h"
+#import "FlurryAds.h"
+#import "FlurryAdInterstitial.h"
 
 static NSString *const SPProviderName = @"SPProviderName";
 static NSString *const SPFlurryApiKey = @"SPFlurryApiKey";
@@ -26,8 +27,8 @@ static NSString *const SPFlurryLogLevelAll = @"all";
 
 // Adapter versioning - Remember to update the header
 static const NSInteger SPFlurryVersionMajor = 2;
-static const NSInteger SPFlurryVersionMinor = 2;
-static const NSInteger SPFlurryVersionPatch = 1;
+static const NSInteger SPFlurryVersionMinor = 3;
+static const NSInteger SPFlurryVersionPatch = 0;
 
 
 static NSString *const SPFlurryRewardedVideoAdapterClassName = @"SPFlurryAppCircleClipsRewardedVideoAdapter";
@@ -47,14 +48,12 @@ static NSString *const SPFlurryInterstitialAdapterClassName = @"SPFlurryAppCircl
 @synthesize supportedServices;
 @synthesize rewardedVideoAdapter;
 @synthesize interstitialAdapter;
-@synthesize multicastDelegate = _multicastDelegate;
 
 #pragma mark - Class Methods
 
 + (SPSemanticVersion *)adapterVersion
 {
-    return
-    [SPSemanticVersion versionWithMajor:SPFlurryVersionMajor minor:SPFlurryVersionMinor patch:SPFlurryVersionPatch];
+    return [SPSemanticVersion versionWithMajor:SPFlurryVersionMajor minor:SPFlurryVersionMinor patch:SPFlurryVersionPatch];
 }
 
 
@@ -65,11 +64,6 @@ static NSString *const SPFlurryInterstitialAdapterClassName = @"SPFlurryAppCircl
     self = [super init];
 
     if (self) {
-        Class RewardedVideoAdapterClass = NSClassFromString(SPFlurryRewardedVideoAdapterClassName);
-        if (RewardedVideoAdapterClass) {
-            self.rewardedVideoAdapter = [[RewardedVideoAdapterClass alloc] init];
-        }
-
         Class InterstitialAdapterClass = NSClassFromString(SPFlurryInterstitialAdapterClassName);
         if (InterstitialAdapterClass) {
             self.interstitialAdapter = [[InterstitialAdapterClass alloc] init];
@@ -92,13 +86,27 @@ static NSString *const SPFlurryInterstitialAdapterClassName = @"SPFlurryAppCircl
     }
     [Flurry startSession:apiKey];
     [Flurry addOrigin:@"SponsorPayIOS" withVersion:[SponsorPaySDK versionString]];
-    
+
     BOOL testAdsEnabled = [(NSNumber *)data[SPFlurryEnableTestAds] boolValue];
-    [FlurryAds initialize:self.mainWindow.rootViewController];
     [FlurryAds enableTestAds:testAdsEnabled];
-    [FlurryAds setAdDelegate:self.multicastDelegate];
     return YES;
 }
+
+- (void)startRewardedVideoAdapter:(NSDictionary *)data
+{
+    Class RewardedVideoAdapterClass = NSClassFromString(SPFlurryRewardedVideoAdapterClassName);
+    if (!RewardedVideoAdapterClass) {
+        return;
+    }
+    
+    id<SPRewardedVideoNetworkAdapter> flurryRewardedVideoAdapter = [[RewardedVideoAdapterClass alloc] init];
+    SPTPNGenericAdapter *flurryRewardedVideoAdapterWrapper = [[SPTPNGenericAdapter alloc] initWithVideoNetworkAdapter:flurryRewardedVideoAdapter];
+    flurryRewardedVideoAdapter.delegate = flurryRewardedVideoAdapterWrapper;
+
+    self.rewardedVideoAdapter = flurryRewardedVideoAdapterWrapper;
+    [super startRewardedVideoAdapter:data];
+}
+
 
 #pragma mark - Private
 
@@ -114,20 +122,6 @@ static NSString *const SPFlurryInterstitialAdapterClassName = @"SPFlurryAppCircl
         return FlurryLogLevelAll;
     }
     return FlurryLogLevelCriticalOnly;
-}
-
-- (SPFlurryAdsMulticastDelegate *)multicastDelegate
-{
-    if (!_multicastDelegate) {
-        _multicastDelegate = [[SPFlurryAdsMulticastDelegate alloc] init];
-    }
-
-    return _multicastDelegate;
-}
-
-- (UIWindow *)mainWindow
-{
-    return [UIApplication sharedApplication].windows[0];
 }
 
 @end
