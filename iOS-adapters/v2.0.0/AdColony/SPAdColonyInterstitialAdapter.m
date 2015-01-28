@@ -9,9 +9,7 @@
 #import "SPAdColonyNetwork.h"
 #import "SPInterstitialClient.h"
 #import "SPLogger.h"
-
 #import "WBAdService+Internal.h"
-#define LogInvocation SPLogDebug(@"%s", __PRETTY_FUNCTION__)
 
 @interface SPAdColonyInterstitialAdapter()
 
@@ -34,8 +32,6 @@
 
 - (BOOL)startAdapterWithDict:(NSDictionary *)dict
 {
-    LogInvocation;
-
     self.zoneId = [[WBAdService sharedAdService] fullpageIdForAdId:WBAdIdAC];
 //    id zoneIdParam = dict[SPAdColonyInterstitialZoneId];
 //    self.zoneId = [zoneIdParam isKindOfClass:[NSString class]] ? zoneIdParam : nil;
@@ -50,8 +46,6 @@
 
 - (BOOL)canShowInterstitial
 {
-    LogInvocation;
-    
     if (!self.isInterstitialAvailable) {
         return NO;
     }
@@ -72,8 +66,6 @@
 // Is called when AdColony has taken control of the device screen and is about to begin showing an ad
 - (void)onAdColonyAdStartedInZone:(NSString *)zoneID
 {
-    LogInvocation;
-    
     if (![zoneID isEqualToString:self.zoneId]) {
         SPLogWarn(@"zoneId received is different than the one requested by the interstitial");
         return;
@@ -85,8 +77,6 @@
 // Is called when AdColony has finished trying to show an ad, either successfully or unsuccessfully
 - (void)onAdColonyAdAttemptFinished:(BOOL)shown inZone:(NSString *)zoneID
 {
-    LogInvocation;
-    
     if (![zoneID isEqualToString:self.zoneId]) {
         SPLogWarn(@"zoneId received is different than the one requested by the interstitial");
         return;

@@ -9,10 +9,8 @@
 #import "SPAdColonyNetwork.h"
 #import "SPLogger.h"
 #import "SPReachability.h"
-
 #import "WBAdService+Internal.h"
 #import "WBIncentivizedVideoProvider.h"
-#define LogInvocation SPLogDebug(@"%s", __PRETTY_FUNCTION__)
 
 typedef NS_ENUM(NSInteger, SPAdColonyRewardState) {
     SPAdColonyRewardUnknown,
@@ -107,7 +105,6 @@ typedef NS_ENUM(NSInteger, SPAdColonyRewardState) {
 #pragma mark - AdColonyDelegate Methods
 //- (void)onAdColonyAdAvailabilityChange:(BOOL)available inZone:(NSString *)zoneID
 //{
-//    LogInvocation;
 //
 //    if (![zoneID isEqualToString:self.zoneId]) {
 //        SPLogWarn(@"zoneId received is different than the one requested by the ad");
@@ -133,8 +130,6 @@ typedef NS_ENUM(NSInteger, SPAdColonyRewardState) {
 #pragma mark - AdColonyAdDelegate methods
 - (void)onAdColonyAdStartedInZone:(NSString *)zoneID
 {
-    LogInvocation;
-
     if (![zoneID isEqualToString:self.zoneId]) {
         SPLogWarn(@"zoneId received is different than the one requested by the ad");
         return;
@@ -145,8 +140,6 @@ typedef NS_ENUM(NSInteger, SPAdColonyRewardState) {
 
 - (void)onAdColonyAdAttemptFinished:(BOOL)shown inZone:(NSString *)zoneID
 {
-    LogInvocation;
-
     if (![zoneID isEqualToString:self.zoneId]) {
         SPLogWarn(@"zoneId received is different than the one requested by the ad");
         return;

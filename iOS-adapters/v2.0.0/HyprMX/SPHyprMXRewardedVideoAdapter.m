@@ -10,10 +10,6 @@
 #import "SPLogger.h"
 #import "HyprMX.h"
 
-#ifndef LogInvocation
-#define LogInvocation SPLogDebug(@"%s", __PRETTY_FUNCTION__)
-#endif
-
 @interface SPHyprMXRewardedVideoAdapter()
 
 @property (nonatomic, assign, getter = isOfferReady) BOOL offerReady;
@@ -31,8 +27,6 @@
 
 - (void)checkAvailability
 {
-    LogInvocation;
-    
     [[HYPRManager sharedManager] checkInventory:^(BOOL isOfferReady) {
         self.offerReady = isOfferReady;
         [self.delegate adapter:self didReportVideoAvailable:isOfferReady];
@@ -47,8 +41,6 @@
 
 - (void)playVideoWithParentViewController:(UIViewController *)parentVC
 {
-    LogInvocation;
-    
     if (self.isOfferReady) {
         [self.delegate adapterVideoDidStart:self];
         [[HYPRManager sharedManager] displayOffer:^(BOOL completed, HYPROffer *offer) {

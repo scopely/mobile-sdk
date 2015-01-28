@@ -11,10 +11,6 @@
 
 #import "ALSdk+SharedSdk.h"
 
-#ifndef LogInvocation
-#define LogInvocation SPLogDebug(@"%s", __PRETTY_FUNCTION__)
-#endif
-
 NSString *const SPAppLovinSDKAppKey = @"SPAppLovinSDKAppKey";
 
 @interface SPAppLovinInterstitialAdapter ()
@@ -80,7 +76,6 @@ NSString *const SPAppLovinSDKAppKey = @"SPAppLovinSDKAppKey";
 
 - (void)adService:(ALAdService *)adService didLoadAd:(ALAd *)ad;
 {
-    LogInvocation;
     self.lastLoadedAd = ad;
 }
 
@@ -101,20 +96,16 @@ NSString *const SPAppLovinSDKAppKey = @"SPAppLovinSDKAppKey";
 
 - (void)ad:(ALAd *)ad wasDisplayedIn:(UIView *)view
 {
-    LogInvocation;
     [self.delegate adapterDidShowInterstitial:self];
 }
 
 - (void)ad:(ALAd *)ad wasClickedIn:(UIView *)view;
 {
-    LogInvocation;
     self.adWasClicked = YES;
 }
 
 - (void)ad:(ALAd *)ad wasHiddenIn:(UIView *)view;
 {
-    LogInvocation;
-
     SPInterstitialDismissReason reason = self.adWasClicked ? SPInterstitialDismissReasonUserClickedOnAd : SPInterstitialDismissReasonUserClosedAd;
 
     [self.delegate adapter:self didDismissInterstitialWithReason:reason];
