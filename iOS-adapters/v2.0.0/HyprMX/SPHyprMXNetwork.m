@@ -16,7 +16,7 @@
 
 static const NSInteger SPHyprMXVersionMajor = 2;
 static const NSInteger SPHyprMXVersionMinor = 1;
-static const NSInteger SPHyprMXVersionPatch = 1;
+static const NSInteger SPHyprMXVersionPatch = 3;
 
 static NSString *const SPHyprMXDistributorID = @"SPHyprMXDistributorID";
 static NSString *const SPHyprMXPropertyID = @"SPHyprMXPropertyID";
@@ -29,6 +29,7 @@ static NSString *const SPRewardedVideoAdapterClassName = @"SPHyprMXRewardedVideo
 
 @property (nonatomic, copy, readonly) NSString *HyprMXUserID;
 @property (nonatomic, strong) id<SPTPNVideoAdapter> rewardedVideoAdapter;
+@property (nonatomic, assign) BOOL sdkStarted;
 
 @end
 
@@ -73,32 +74,16 @@ static NSString *const SPRewardedVideoAdapterClassName = @"SPHyprMXRewardedVideo
 
 - (BOOL)startSDK:(NSDictionary *)data
 {
-    //    if (![data isKindOfClass:[NSDictionary class]]) {
-    //        SPLogError(@"data parameter is nil or not a dictionary.");
-    //        return NO;
-    //    }
-    //
-    //    NSString *const distributorID = data[SPHyprMXDistributorID];
-    //
-    //    if (![distributorID isKindOfClass:[NSString class]] || ![distributorID length]) {
-    //        SPLogError(@"No or empty value given for key %@.", SPHyprMXDistributorID);
-    //
-    //        return NO;
-    //    }
-    //
-    //
-    //    NSString *const propertyID = data[SPHyprMXPropertyID];
-    //
-    //    if (![propertyID isKindOfClass:[NSString class]] || ![propertyID length]) {
-    //        SPLogError(@"No or empty value given for key %@.", SPHyprMXPropertyID);
-    //
-    //        return NO;
-    //    }
+    if (self.sdkStarted) {
+        SPLogInfo(@"SDK and mediation adapter for HyprMX Provider has already started");
+        return YES;
+    }
     
     [[HYPRManager sharedManager] initializeWithDistributorId:[[WBAdService sharedAdService] fullpageIdForAdId:WBAdIdHX]
                                                   propertyId:[[WBAdService sharedAdService] fullpageIdForAdId:WBAdIdHXPlacementId]
                                                       userId:self.HyprMXUserID];
-    
+
+    self.sdkStarted = YES;
     return YES;
 }
 

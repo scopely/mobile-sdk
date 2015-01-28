@@ -1,6 +1,5 @@
 //
 //  SPProviderAppLovin.m
-//  Fyber iOS SDK - AppLovin Adapter v.2.1.0
 //
 //  Copyright (c) 2014 Fyber. All rights reserved.
 //
@@ -13,12 +12,13 @@
 #import "SPLogger.h"
 
 static NSString *const SPAppLovinSDKKey                 = @"SPAppLovinSdkKey";
+static NSString *const SPAppLovinEnableVerboseLogging   = @"SPAppLovinEnableVerboseLogging";
 static NSString *const SPInterstitialAdapterClassName   = @"SPAppLovinInterstitialAdapter";
 static NSString *const SPRewardedVideoAdapterClassName  = @"SPAppLovinRewardedVideoAdapter";
 
 // Adapter versioning - Remember to update the header
 static const NSInteger SPAppLovinVersionMajor = 2;
-static const NSInteger SPAppLovinVersionMinor = 1;
+static const NSInteger SPAppLovinVersionMinor = 3;
 static const NSInteger SPAppLovinVersionPatch = 0;
 
 @interface SPAppLovinNetwork()

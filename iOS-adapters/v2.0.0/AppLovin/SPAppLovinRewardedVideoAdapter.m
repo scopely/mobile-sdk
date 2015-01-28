@@ -1,6 +1,5 @@
 //
 //  SPApplovinAdapter.m
-//  SponsorPayTestApp
 //
 //  Copyright (c) 2014 Fyber. All rights reserved.
 //
@@ -134,7 +133,8 @@
 
 #pragma mark - Accessors
 
--(ALIncentivizedInterstitialAd *)videoAd {
+-(ALIncentivizedInterstitialAd *)videoAd
+{
     if (!_videoAd) {
 //        ALSdkSettings *alSDKSettings = [[ALSdkSettings alloc] init];
 //        ALSdk *appLovinSDKInstance = [ALSdk sharedWithKey:self.network.apiKey settings:alSDKSettings];

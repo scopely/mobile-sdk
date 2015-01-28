@@ -10,7 +10,9 @@
 #import "SPInterstitialClient.h"
 #import "SPLogger.h"
 
+#ifndef LogInvocation
 #define LogInvocation SPLogDebug(@"%s", __PRETTY_FUNCTION__)
+#endif
 
 @interface SPAdColonyInterstitialAdapter()
 
@@ -61,7 +63,12 @@
     if (self.isInterstitialAvailable) {
         [AdColony playVideoAdForZone:self.zoneId withDelegate:self];
     } else {
-        SPLogDebug(@"Interstitial for network %@ is not available", self.network.name);
+        NSString *description = [NSString stringWithFormat:@"Interstitial for network %@ is not available", self.network.name];
+        SPLogError(@"%@", description);
+        NSError *error = [NSError errorWithDomain:SPInterstitialClientErrorDomain
+                            code:SPInterstitialClientCannotInstantiateAdapterErrorCode
+                        userInfo:@{SPInterstitialClientErrorLoggableDescriptionKey : description}];
+        [self.delegate adapter:self didFailWithError:error];
     }
 }
 

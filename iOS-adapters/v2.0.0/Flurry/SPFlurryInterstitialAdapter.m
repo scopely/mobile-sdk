@@ -6,17 +6,18 @@
 
 #import "SPFlurryInterstitialAdapter.h"
 #import "SPFlurryNetwork.h"
-#import "SPFlurryAdsMulticastDelegate.h"
 #import "SPLogger.h"
+#import "SPInterstitialClient.h"
 
-static const NSInteger kFlurryNoAdsErrorCode = 104;
 static NSString *const SPFlurryInterstitialAdSpace = @"SPFlurryAdSpaceInterstitial";
 
 @interface SPFlurryAppCircleClipsInterstitialAdapter ()
 
 @property (nonatomic, weak) id<SPInterstitialNetworkAdapterDelegate> delegate;
 @property (nonatomic, copy) NSString *interstitialAdsSpace;
-@property (nonatomic, assign) BOOL adWasClicked;
+@property (strong) FlurryAdInterstitial *adInterstitial;
+@property (nonatomic, assign) BOOL isFetchingAd;
+@property (nonatomic, assign) BOOL wasAdClicked;
 
 @end
 
@@ -37,16 +38,16 @@ static NSString *const SPFlurryInterstitialAdSpace = @"SPFlurryAdSpaceInterstiti
         return NO;
     }
 
-    [self.network.multicastDelegate addAdDelegate:self];
     [self fetchFlurryAd];
     return YES;
 }
 
 - (void)fetchFlurryAd
 {
-    [FlurryAds fetchAdForSpace:self.interstitialAdsSpace
-                         frame:self.network.mainWindow.rootViewController.view.frame
-                          size:FULLSCREEN];
+    self.isFetchingAd = YES;
+    self.adInterstitial = [[FlurryAdInterstitial alloc] initWithSpace:self.interstitialAdsSpace];
+    self.adInterstitial.adDelegate = self;
+    [self.adInterstitial fetchAd];
 }
 
 
@@ -54,88 +55,67 @@ static NSString *const SPFlurryInterstitialAdSpace = @"SPFlurryAdSpaceInterstiti
 
 - (BOOL)canShowInterstitial
 {
-    if (![FlurryAds adReadyForSpace:self.interstitialAdsSpace]) {
+    if (!self.adInterstitial.ready && !self.isFetchingAd) {
         [self fetchFlurryAd];
-        return NO;
     }
-    return YES;
+    return self.adInterstitial.ready;
 }
 
 - (void)showInterstitialFromViewController:(UIViewController *)viewController
 {
-    // According to the documentation, the view is not used by the Flurry SDK, but setting to nil causes an exception
-    UIView *topView = [[self.network.mainWindow subviews] lastObject];
-    [FlurryAds displayAdForSpace:self.interstitialAdsSpace onView:topView viewControllerForPresentation:viewController];
-    self.adWasClicked = NO;
+    if (self.adInterstitial.ready) {
+        self.wasAdClicked = NO;
+        [self.adInterstitial presentWithViewControler:viewController];
+    } else {
+        NSString *description = [NSString stringWithFormat:@"Interstitial for network %@ is not available", self.network.name];
+        SPLogError(@"%@", description);
+        NSError *error = [NSError errorWithDomain:SPInterstitialClientErrorDomain
+                                             code:SPInterstitialClientCannotInstantiateAdapterErrorCode
+                                         userInfo:@{ SPInterstitialClientErrorLoggableDescriptionKey: description }];
+        [self.delegate adapter:self didFailWithError:error];
+    }
+}
+
+
+- (void)adInterstitialDidFetchAd:(FlurryAdInterstitial *)adInterstitial
+{
+    self.isFetchingAd = NO;
+}
+
+- (void)adInterstitialDidRender:(FlurryAdInterstitial *)interstitialAd
+{
     [self.delegate adapterDidShowInterstitial:self];
 }
 
-#pragma mark - FlurryAdDelegate protocol implementation
-
-- (void)spaceDidFailToReceiveAd:(NSString *)adSpace error:(NSError *)error
+- (void)adInterstitialDidDismiss:(FlurryAdInterstitial *)interstitialAd
 {
-    if (![self isThisAdSpace:adSpace] || error.code == kFlurryNoAdsErrorCode) {
-        return;
-    }
-
-    NSError *interstitialError =
-    [NSError errorWithDomain:@"com.sponsorpay.interstitialError"
-                        code:error.code
-                    userInfo:@{
-                        NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Flurry error: %@", error.localizedDescription],
-                        NSUnderlyingErrorKey: error
-                    }];
-    [self.delegate adapter:self didFailWithError:interstitialError];
-}
-
-- (BOOL)spaceShouldDisplay:(NSString *)adSpace interstitial:(BOOL)interstitial
-{
-    return [self isThisAdSpace:adSpace] && interstitial;
-}
-
-- (void)spaceDidFailToRender:(NSString *)adSpace error:(NSError *)error
-{
-    if (![self isThisAdSpace:adSpace]) {
-        return;
-    }
-
-    SPLogError(@"Flurry failed to render ad: %@", [error localizedDescription]);
-
-    NSError *interstitialError =
-    [NSError errorWithDomain:@"com.sponsorpay.interstitialError"
-                        code:error.code
-                    userInfo:@{
-                        NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Flurry error: %@", error.localizedDescription]
-                    }];
-    [self.delegate adapter:self didFailWithError:interstitialError];
-}
-
-- (void)spaceDidDismiss:(NSString *)adSpace interstitial:(BOOL)interstitial
-{
-    if (![self isThisAdSpace:adSpace]) {
-        return;
-    }
-    SPInterstitialDismissReason reason = SPInterstitialDismissReasonUserClosedAd;
-    if (self.adWasClicked) {
-        reason = SPInterstitialDismissReasonUserClickedOnAd;
-    }
-
-    [self.delegate adapter:self didDismissInterstitialWithReason:reason];
+    SPInterstitialDismissReason dismissReason =
+    self.wasAdClicked ? SPInterstitialDismissReasonUserClickedOnAd : SPInterstitialDismissReasonUserClosedAd;
+    [self.delegate adapter:self didDismissInterstitialWithReason:dismissReason];
+    
     [self fetchFlurryAd];
 }
 
-- (void)spaceDidReceiveClick:(NSString *)adSpace
+- (void)adInterstitialDidReceiveClick:(FlurryAdInterstitial *)interstitialAd
 {
-    if ([self isThisAdSpace:adSpace]) {
-        self.adWasClicked = YES;
+    self.wasAdClicked = YES;
+}
+
+- (void)adInterstitial:(FlurryAdInterstitial *)interstitialAd
+               adError:(FlurryAdError)adError
+      errorDescription:(NSError *)errorDescription
+{
+    self.isFetchingAd = NO;
+    if (adError == FLURRY_AD_ERROR_DID_FAIL_TO_FETCH_AD) {
+        SPLogDebug(@"Flurry failed to fetch ad ");
+    } else {
+        NSError *interstitialError =
+        [NSError errorWithDomain:@"com.sponsorpay.interstitialError"
+                            code:errorDescription.code
+                        userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Flurry error: %@", errorDescription.localizedDescription]}];
+        [self.delegate adapter:self didFailWithError:interstitialError];
     }
 }
 
-#pragma mark -
-
-- (BOOL)isThisAdSpace:(NSString *)adSpace
-{
-    return [self.interstitialAdsSpace isEqualToString:adSpace];
-}
 
 @end

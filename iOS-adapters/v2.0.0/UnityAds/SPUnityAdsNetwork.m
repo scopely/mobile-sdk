@@ -1,6 +1,6 @@
 //
 //  SPUnityAdsNetwork.m
-//  Fyber iOS SDK - UnityAds Adapter v.2.2.0
+//  Fyber iOS SDK - UnityAds Adapter
 //
 //  Created on 13/01/14.
 //  Copyright (c) 2014 Fyber. All rights reserved.
@@ -22,14 +22,15 @@ static NSString *const SPInterstitialAdapterClassName = @"SPUnityAdsInterstitial
 
 // Adapter versioning - Remember to update the header
 static const NSInteger SPUnityAdsVersionMajor = 2;
-static const NSInteger SPUnityAdsVersionMinor = 2;
-static const NSInteger SPUnityAdsVersionPatch = 0;
+static const NSInteger SPUnityAdsVersionMinor = 4;
+static const NSInteger SPUnityAdsVersionPatch = 1;
 
 @interface SPUnityAdsNetwork ()
 
 @property (nonatomic, strong) SPTPNGenericAdapter *rewardedVideoAdapter;
 @property (nonatomic, strong) id<SPInterstitialNetworkAdapter> interstitialAdapter;
 @property (nonatomic, copy, readwrite) NSString *name;
+@property (nonatomic, assign) BOOL sdkStarted;
 
 @end
 
@@ -64,22 +65,29 @@ static const NSInteger SPUnityAdsVersionPatch = 0;
 
 - (BOOL)startSDK:(NSDictionary *)data
 {
+    if (self.sdkStarted) {
+        SPLogInfo(@"SDK and mediation adapters for Applifier/UnityAds Provider have already started");
+        return YES;
+    }
+    
     self.name = @"Applifier";
-    
-//    NSString *gameId = data[SPUnityAdsGameId];
-//
-//    if (!gameId) {
-//        SPLogError(@"Could not start %@ Provider. %@ empty or missing.", self.name, SPUnityAdsGameId);
-//        return NO;
-//    }
-    
-    [[UnityAds sharedInstance] startWithGameId:[[WBAdService sharedAdService] fullpageIdForAdId:WBAdIdAFIncentivizedId]];
 
 #ifdef UNITY_ADS_TEST_MODE
 #warning Unity Ads Test mode enabled
     [[UnityAds sharedInstance] setDebugMode:YES];
     [[UnityAds sharedInstance] setTestMode:YES];
 #endif
+    
+    NSString *gameId = [[WBAdService sharedAdService] fullpageIdForAdId:WBAdIdAFIncentivizedId];
+    
+    BOOL success = [[UnityAds sharedInstance] startWithGameId:gameId];
+
+    if (!success) {
+        SPLogError(@"Could not start %@ Provider. [[UnityAds sharedInstance] startWithGameId:%@] failed", self.name, gameId);
+        return NO;
+    }
+    
+    self.sdkStarted = YES;
     return YES;
 }
 

@@ -12,8 +12,8 @@
  
  ## Version compatibility
  
- - Adapter version: 2.1.1
- - Fyber SDK version: 6.5.2
+ - Adapter version: 2.1.3
+ - Fyber SDK version: 7.0.3
  - HyprMX SDK version: 18
  
  */

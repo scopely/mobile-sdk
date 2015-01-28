@@ -9,8 +9,9 @@
 #import "SPUnityAdsNetwork.h"
 #import "SPLogger.h"
 
-static NSString *const SPUnityAdsShowOffers = @"SPUnityAdsShowOffers";
 static NSString *const SPUnityAdsRewardedVideoZoneId = @"SPUnityAdsRewardedVideoZoneId";
+static NSString *const SPUnityAdsErrorDomain = @"SPUnityAdsErrorDomain";
+static NSInteger const SPUnityAdsWrongZoneIdErrorCode = -1;
 
 @interface SPUnityAdsRewardedVideoAdapter ()
 
@@ -32,28 +33,37 @@ static NSString *const SPUnityAdsRewardedVideoZoneId = @"SPUnityAdsRewardedVideo
 - (BOOL)startAdapterWithDictionary:(NSDictionary *)dict
 {
     self.zoneId = dict[SPUnityAdsRewardedVideoZoneId];
-    if (self.zoneId.length == 0) {
-        self.zoneId = nil;
-    }
-
+    
+    // The `kUnityAdsOptionNoOfferscreenKey` parameter should always be passed with the `@YES` value
     self.showOptions = [[NSMutableDictionary alloc] initWithDictionary:@{
         kUnityAdsOptionVideoUsesDeviceOrientation: @YES,
         kUnityAdsOptionNoOfferscreenKey: @YES
     }];
-
-    // It seems that kUnityAdsOptionNoOfferscreenKey option doesn't work anymore, but it wasn't removed from code, because this parameter is still available in UnityAds API.
-    if (dict[SPUnityAdsShowOffers]) {
-        BOOL hideOffers = ![dict[SPUnityAdsShowOffers] boolValue];
-        self.showOptions[kUnityAdsOptionNoOfferscreenKey] = @(hideOffers);
-    }
-
+    
     return YES;
 }
 
 - (void)checkAvailability
 {
-    BOOL videoAvailable = [[UnityAds sharedInstance] canShow];
-    [self.delegate adapter:self didReportVideoAvailable:videoAvailable];
+    BOOL isZoneIdCorrect = YES;
+    if (self.zoneId.length) {
+        isZoneIdCorrect = [[UnityAds sharedInstance] setZone:self.zoneId];
+    }
+    
+    BOOL canShow = [[UnityAds sharedInstance] canShow];
+    BOOL canShowAds = [[UnityAds sharedInstance] canShowAds];
+    
+    if (canShow && !isZoneIdCorrect) {
+        NSString *errorMessage = [NSString stringWithFormat:@"UnityAds - Cannot set %@: %@",SPUnityAdsRewardedVideoZoneId, self.zoneId];
+        SPLogError(errorMessage);
+        NSError *error = [NSError errorWithDomain:SPUnityAdsErrorDomain
+                                             code:SPUnityAdsWrongZoneIdErrorCode
+                                         userInfo:@{ NSLocalizedDescriptionKey: errorMessage }];
+        [self.delegate adapter:self didFailWithError:error];
+        return;
+    }
+
+    [self.delegate adapter:self didReportVideoAvailable:(canShow && canShowAds)];
 }
 
 - (void)playVideoWithParentViewController:(UIViewController *)parentVC
@@ -63,7 +73,7 @@ static NSString *const SPUnityAdsRewardedVideoZoneId = @"SPUnityAdsRewardedVideo
         [[UnityAds sharedInstance] setZone:self.zoneId];
     }
     [UnityAds sharedInstance].delegate = self;
-
+    
     BOOL success = [[UnityAds sharedInstance] show:self.showOptions];
     SPLogDebug(@"%@", success ? @"Showing Unity Rewarded Video" : @"Error showing Unity Rewarded Video");
     if (!success) {

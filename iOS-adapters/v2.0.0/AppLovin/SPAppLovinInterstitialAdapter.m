@@ -1,6 +1,5 @@
 //
 //  SPAppLovingInterstitialAdapter.m
-//  SponsorPayTestApp
 //
 //  Copyright (c) 2013 Fyber. All rights reserved.
 //
@@ -12,7 +11,9 @@
 
 #import "ALSdk+SharedSdk.h"
 
+#ifndef LogInvocation
 #define LogInvocation SPLogDebug(@"%s", __PRETTY_FUNCTION__)
+#endif
 
 NSString *const SPAppLovinSDKAppKey = @"SPAppLovinSDKAppKey";
 

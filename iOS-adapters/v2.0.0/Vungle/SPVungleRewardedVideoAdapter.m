@@ -1,65 +1,58 @@
 //
-//  SPVungleAdapter.m
-//  SponsorPay iOS SDK
+// SPVungleAdapter.m
 //
-//  Created by David Davila on 5/30/13.
-// Copyright 2011-2013 SponsorPay. All rights reserved.
+// Created on 5/30/13.
+// Copyright 2011-2013 Fyber. All rights reserved.
 //
 
 #import "SPVungleRewardedVideoAdapter.h"
 #import "SPVungleNetwork.h"
 #import "SPLogger.h"
 
+#ifndef LogInvocation
 #define LogInvocation SPLogDebug(@"%s", __PRETTY_FUNCTION__)
+#endif
 
-@interface SPVungleRewardedVideoAdapter()
-
+@interface SPVungleRewardedVideoAdapter ()
 @property (assign) BOOL videoDidPlayFull;
-@property (copy) SPTPNVideoEventsHandlerBlock videoEventsCallback;
-
-- (void)applicationWillResignActive:(NSNotification *)notification;
-- (void)sendCloseEvent;
-
 @end
 
 @implementation SPVungleRewardedVideoAdapter
 
-- (BOOL)startAdapterWithDictionary:(NSDictionary *)dict
-{
-    return YES;
-}
+@synthesize delegate;
 
 - (NSString *)networkName
 {
     return self.network.name;
 }
 
-- (void)videosAvailable:(SPTPNValidationResultBlock)callback
+- (BOOL)startAdapterWithDictionary:(NSDictionary *)dict
 {
-    BOOL isVideoAvailable = [[VungleSDK sharedSDK] isCachedAdAvailable];
-    
-    SPTPNValidationResult validationResult = isVideoAvailable ? SPTPNValidationSuccess : SPTPNValidationNoVideoAvailable;
+    return YES;
+}
 
-    callback(self.networkName, validationResult);
+- (void)checkAvailability
+{
+    [self.delegate adapter:self didReportVideoAvailable:[[VungleSDK sharedSDK] isCachedAdAvailable]];
 }
 
 - (void)playVideoWithParentViewController:(UIViewController *)parentVC
-                        notifyingCallback:(SPTPNVideoEventsHandlerBlock)eventsCallback
 {
     self.videoDidPlayFull = NO;
-    self.videoEventsCallback = eventsCallback;
     [[VungleSDK sharedSDK] setDelegate:self];
-    
-    //additional configuration
+
+    // additional configuration
     NSMutableDictionary *options = [NSMutableDictionary dictionary];
     if (self.network.orientation.length) {
         [options setObject:@(self.network.orientationMask) forKey:VunglePlayAdOptionKeyOrientations];
     }
-    if (self.network.showClose) {
-        [options setObject:self.network.showClose forKey:VunglePlayAdOptionKeyShowClose];
+
+    NSError *error = nil;
+    [[VungleSDK sharedSDK] playAd:parentVC withOptions:options error:&error];
+
+    if (error) {
+        SPLogError(@"Vungle error %d: %@", [error code], [error localizedDescription]);
     }
-    
-    [[VungleSDK sharedSDK] playAd:parentVC withOptions:options];
 }
 
 #pragma mark - VGVunglePubDelegate protocol implementation
@@ -69,8 +62,8 @@
 - (void)vungleSDKwillShowAd
 {
     LogInvocation;
-    
-    self.videoEventsCallback(self.networkName, SPTPNVideoEventStarted);
+
+    [self.delegate adapterVideoDidStart:self];
 }
 
 - (void)vungleSDKwillCloseAdWithViewInfo:(NSDictionary *)viewInfo willPresentProductSheet:(BOOL)willPresentProductSheet
@@ -79,43 +72,28 @@
 
     self.videoDidPlayFull = [viewInfo[@"completedView"] boolValue];
 
-    SPTPNVideoEvent event = self.videoDidPlayFull ? SPTPNVideoEventFinished : SPTPNVideoEventAborted;
-    self.videoEventsCallback(self.networkName, event);
-    
-    if (willPresentProductSheet) {
-        //register for UIApplicationWillResignActiveNotification notification
-        //reason: when the ProductSheet is displayed and the app is minimized the vungleSDKwillCloseProductSheet method is never called
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
-    } else {
-        [self sendCloseEvent];
+    if (self.videoDidPlayFull) {
+        [self.delegate adapterVideoDidFinish:self];
+    }
+
+    if (!willPresentProductSheet) {
+        [self reportAdDidClose];
     }
 }
 
 - (void)vungleSDKwillCloseProductSheet:(id)productSheet
 {
     LogInvocation;
-    
-    [self sendCloseEvent];
+    [self reportAdDidClose];
 }
 
-- (void)applicationWillResignActive:(NSNotification *)notification
+- (void)reportAdDidClose
 {
-    LogInvocation;
-    
-    //unregister from UIApplicationWillResignActiveNotification notification
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillResignActiveNotification object:nil];
-    
-    [self sendCloseEvent];
-}
-
-- (void)sendCloseEvent
-{
-    LogInvocation;
-
     if (self.videoDidPlayFull) {
-        self.videoEventsCallback(self.networkName, SPTPNVideoEventClosed);
+        [self.delegate adapterVideoDidClose:self];
+    } else {
+        [self.delegate adapterVideoDidAbort:self];
     }
-    [[VungleSDK sharedSDK] setDelegate:nil];
 }
 
 @end

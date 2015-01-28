@@ -5,11 +5,22 @@
 //
 
 #import "SPFlurryNetwork.h"
-#import "FlurryAdDelegate.h"
+#import "FlurryAdInterstitial.h"
+
+/**
+ Implementation of Flurry Ads network for Interstitial demand
+ 
+ ## Version compatibility
+ 
+ - Adapter version: 2.3.0
+ - Fyber SDK version: 7.0.3
+ - Flurry SDK version: 6.0.0
+ 
+ */
 
 @class SPFlurryInterstitialAdapter;
 
-@interface SPFlurryAppCircleClipsInterstitialAdapter : NSObject<SPInterstitialNetworkAdapter, FlurryAdDelegate>
+@interface SPFlurryAppCircleClipsInterstitialAdapter : NSObject<SPInterstitialNetworkAdapter, FlurryAdInterstitialDelegate>
 
 @property (weak, nonatomic) SPFlurryAppCircleClipsNetwork *network;
 
