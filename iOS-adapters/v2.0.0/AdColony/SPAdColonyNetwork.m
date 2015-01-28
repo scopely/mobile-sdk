@@ -11,7 +11,8 @@
 #import "SPRewardedVideoNetworkAdapter.h"
 #import "SPSemanticVersion.h"
 #import "SPLogger.h"
-#import <AdColony/AdColony.h>
+#import "AdColony.h"
+#import "WBAdService+Internal.h"
 
 static const NSInteger SPAdColonyVersionMajor = 2;
 static const NSInteger SPAdColonyVersionMinor = 1;
@@ -73,37 +74,19 @@ static NSString *const SPRewardedVideoAdapterClassName = @"SPAdColonyRewardedVid
 
 - (BOOL)startSDK:(NSDictionary *)data
 {
-    id appIdParam = data[SPAdColonyAppId];
-    id V4VCZoneIdParam = data[SPAdColonyV4VCZoneId];
-    id interstitialZoneIdParam = data[SPAdColonyInterstitialZoneId];
-    NSString *appId = [appIdParam isKindOfClass:[NSString class]] ? appIdParam : nil;
-    NSString *V4VCZoneId = [V4VCZoneIdParam isKindOfClass:[NSString class]] ? V4VCZoneIdParam : nil;
-    NSString *interstitialZoneId = [interstitialZoneIdParam isKindOfClass:[NSString class]] ? interstitialZoneIdParam : nil;
-    
-    if (!appId.length) {
-        SPLogError(@"%@ Appid missing or empty", self.name);
-        return NO;
-    }
-    
-    if (!V4VCZoneId.length && !interstitialZoneId.length) {
-        SPLogError(@"ZoneId for %@ V4VC/interstitial missing or empty", self.name);
-        return NO;
-    }
-    
-    if ([V4VCZoneId isEqualToString:interstitialZoneId]) {
-        SPLogError(@"ZoneId for %@ V4VC and interstitial should not have the same values", self.name);
-        return NO;
-    }
-    
-    NSMutableArray *zoneIDs = [NSMutableArray array];
-    if (V4VCZoneId) {
-        [zoneIDs addObject:V4VCZoneId];
-    }
-    if (interstitialZoneId) {
-        [zoneIDs addObject:interstitialZoneId];
-    }
-    
-    [AdColony configureWithAppID:appId zoneIDs:zoneIDs delegate:self.rewardedVideoNetworkAdapter logging:YES];
+//    NSString *appId = [[WBAdService sharedAdService] fullpageIdForAdId:WBAdIdACAppId];
+//    NSString *V4VCZoneId = [[WBAdService sharedAdService] fullpageIdForAdId:WBAdIdACIncentivizedZone];
+//    NSString *interstitialZoneId = [[WBAdService sharedAdService] fullpageIdForAdId:WBAdIdAC];
+//    
+//    NSMutableArray *zoneIDs = [NSMutableArray array];
+//    if (V4VCZoneId) {
+//        [zoneIDs addObject:V4VCZoneId];
+//    }
+//    if (interstitialZoneId) {
+//        [zoneIDs addObject:interstitialZoneId];
+//    }
+//    
+//    [AdColony configureWithAppID:appId zoneIDs:zoneIDs delegate:self.rewardedVideoNetworkAdapter logging:YES];
     return YES;
 }
 

@@ -10,9 +10,8 @@
 #import "SPInterstitialClient.h"
 #import "SPLogger.h"
 
-#ifndef LogInvocation
+#import "WBAdService+Internal.h"
 #define LogInvocation SPLogDebug(@"%s", __PRETTY_FUNCTION__)
-#endif
 
 @interface SPAdColonyInterstitialAdapter()
 
@@ -36,13 +35,14 @@
 - (BOOL)startAdapterWithDict:(NSDictionary *)dict
 {
     LogInvocation;
-    
-    id zoneIdParam = dict[SPAdColonyInterstitialZoneId];
-    self.zoneId = [zoneIdParam isKindOfClass:[NSString class]] ? zoneIdParam : nil;
-    if (!self.zoneId.length) {
-        SPLogError(@"ZoneId for %@ interstitial missing or empty", self.networkName);
-        return NO;
-    }
+
+    self.zoneId = [[WBAdService sharedAdService] fullpageIdForAdId:WBAdIdAC];
+//    id zoneIdParam = dict[SPAdColonyInterstitialZoneId];
+//    self.zoneId = [zoneIdParam isKindOfClass:[NSString class]] ? zoneIdParam : nil;
+//    if (!self.zoneId.length) {
+//        SPLogError(@"ZoneId for %@ interstitial missing or empty", self.networkName);
+//        return NO;
+//    }
     return YES;
 }
 
@@ -63,12 +63,7 @@
     if (self.isInterstitialAvailable) {
         [AdColony playVideoAdForZone:self.zoneId withDelegate:self];
     } else {
-        NSString *description = [NSString stringWithFormat:@"Interstitial for network %@ is not available", self.network.name];
-        SPLogError(@"%@", description);
-        NSError *error = [NSError errorWithDomain:SPInterstitialClientErrorDomain
-                            code:SPInterstitialClientCannotInstantiateAdapterErrorCode
-                        userInfo:@{SPInterstitialClientErrorLoggableDescriptionKey : description}];
-        [self.delegate adapter:self didFailWithError:error];
+        SPLogDebug(@"Interstitial for network %@ is not available", self.network.name);
     }
 }
 

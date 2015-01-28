@@ -7,7 +7,7 @@
 
 #import <Foundation/Foundation.h>
 #import "SPRewardedVideoNetworkAdapter.h"
-#import <AdColony/AdColony.h>
+#import "AdColony.h"
 
 @class SPAdColonyNetwork;
 
