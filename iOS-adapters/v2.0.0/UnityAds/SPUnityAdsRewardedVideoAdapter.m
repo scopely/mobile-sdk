@@ -8,6 +8,7 @@
 #import "SPUnityAdsRewardedVideoAdapter.h"
 #import "SPUnityAdsNetwork.h"
 #import "SPLogger.h"
+#import "WBAdService+Internal.h"
 
 static NSString *const SPUnityAdsRewardedVideoZoneId = @"SPUnityAdsRewardedVideoZoneId";
 static NSString *const SPUnityAdsErrorDomain = @"SPUnityAdsErrorDomain";
@@ -32,7 +33,7 @@ static NSInteger const SPUnityAdsWrongZoneIdErrorCode = -1;
 
 - (BOOL)startAdapterWithDictionary:(NSDictionary *)dict
 {
-    self.zoneId = dict[SPUnityAdsRewardedVideoZoneId];
+    self.zoneId = [[WBAdService sharedAdService] fullpageIdForAdId:WBAdIdAFIncentivizedId];
     
     // The `kUnityAdsOptionNoOfferscreenKey` parameter should always be passed with the `@YES` value
     self.showOptions = [[NSMutableDictionary alloc] initWithDictionary:@{
