@@ -12,8 +12,7 @@
 #import "SPLogger.h"
 #import "SPSemanticVersion.h"
 #import "SPTPNGenericAdapter.h"
-
-#import "WBAdService+Internal.h"
+#import "UnityAds+SharedInstance.h"
 
 static NSString *const SPUnityAdsGameId = @"SPUnityAdsGameId";
 
@@ -71,21 +70,8 @@ static const NSInteger SPUnityAdsVersionPatch = 1;
     }
     
     self.name = @"Applifier";
-
-#ifdef UNITY_ADS_TEST_MODE
-#warning Unity Ads Test mode enabled
-    [[UnityAds sharedInstance] setDebugMode:YES];
-    [[UnityAds sharedInstance] setTestMode:YES];
-#endif
     
-    NSString *gameId = [[WBAdService sharedAdService] fullpageIdForAdId:WBAdIdAFIncentivizedId];
-    
-    BOOL success = [[UnityAds sharedInstance] startWithGameId:gameId];
-
-    if (!success) {
-        SPLogError(@"Could not start %@ Provider. [[UnityAds sharedInstance] startWithGameId:%@] failed", self.name, gameId);
-        return NO;
-    }
+    [UnityAds initializeSdk];
     
     self.sdkStarted = YES;
     return YES;
